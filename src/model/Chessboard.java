@@ -84,12 +84,15 @@ public class Chessboard {
 		
 	}
 */
+	public boolean isChessmanAttacked(int index, String opponentColor) {		
+		return true;
+	}
+
 	
 	public void defineFenFormat() {}
 	public void exportPosition() {}
 	public void moveAChessMan() {}
 	public void isKingcheck() {}
-	public void isChessmanAttacked() {}
 	public void displayHistoryMoves() {}
 	public void getMarksToPosition() {}
 	

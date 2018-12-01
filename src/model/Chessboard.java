@@ -26,11 +26,13 @@ public class Chessboard {
 
 	private String sideToPlay; //determine which player have to play
 	private int nbEnPassant = -1; //number of cells which can be take by the 'en passant' technique
-	private ArrayList<Move> history ; //History of moves played
-	
-	/*
-	 * Insérer ici droit aux roques.
-	 */
+	private boolean rookCanCastle63=true; //determine if white side can castle
+    private boolean rookCanCastle56=true; //determine if black side can castle 
+    private boolean rookCanCastle0=true; //determine if white side can castle
+    private boolean rookCanCastle7=true; //determine if black side can castle 
+ 
+	private ArrayList<Move> history ; //History of moves played	
+    
 	
 	/*
 	 * Initialization
@@ -51,15 +53,21 @@ public class Chessboard {
 	public ArrayList<Move> genAllMoves(String camp) {		
 		ArrayList<Move> rslt = new ArrayList<Move>(); 
 		for(Chessman chessman : cells)
-			{/* rslt.addAll(chessman.getAllMove)*/}
+		{
+			/* if (chessman.getColor().equals(camp))) 
+			 	rslt.addAll(chessman.getAllMove)*/
+		}
+		
 		return rslt;
 	}
+	
+	 
 	
 	/*
 	 * Change turn player
 	 */
 	public void nextTurn() {
-		setSideToPlay(oppositeColor(sideToPlay));
+		sideToPlay = oppositeColor(sideToPlay);
 	}
 	
 	public String oppositeColor(String color) {
@@ -81,18 +89,29 @@ public class Chessboard {
 	public void exportPosition() {}
 	public void moveAChessMan() {}
 	public void isKingcheck() {}
-	public void isChessManAttack() {}
+	public void isChessmanAttacked() {}
 	public void displayHistoryMoves() {}
 	public void getMarksToPosition() {}
 	
 	//Getters, Setters...
+	
 	public String[] getCoords() {return coords;}
 	public void setCoords(String[] coords) {this.coords = coords;}
+	
 	public Chessman[] getCells() {return cells;}
 	public void setCells(Chessman[] cells) {this.cells = cells;}
+	
 	public String getSideToPlay() {	return sideToPlay;}
 	public void setSideToPlay(String sideToPlay) {this.sideToPlay = sideToPlay;	}	
 	
+	public boolean isRookCanCastle63() {return rookCanCastle63;}
+	public void setRookCanCastle63(boolean rookCanCastle63) {this.rookCanCastle63 = rookCanCastle63;}
+	public boolean isRookCanCastle7() {return rookCanCastle7;}
+	public void setRookCanCastle7(boolean rookCanCastle7) {this.rookCanCastle7 = rookCanCastle7;}
+	public boolean isRookCanCastle56() {return rookCanCastle56;}
+	public void setRookCanCastle56(boolean rookCanCastle56) {this.rookCanCastle56 = rookCanCastle56;}
+	public boolean isRookCanCastle0() {return rookCanCastle0;}
+	public void setRookCanCastle0(boolean rookCanCastle0) {this.rookCanCastle0 = rookCanCastle0;}
 	
 	@Override
 	public String toString() {
@@ -106,5 +125,12 @@ public class Chessboard {
 			} else {j++;}	
 		}
 		return result;
-	}	
+	}
+
+
+
+
+
+
+
 }

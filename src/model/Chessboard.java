@@ -30,7 +30,7 @@ public class Chessboard {
 	@Override
 	public String toString() {
 		String result;
-		
+		result =" coucou";
 		return result;
 	}
 	

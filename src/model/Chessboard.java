@@ -22,26 +22,33 @@ public class Chessboard {
 		new Chessman("pawn", "white"),new Chessman("pawn", "white"),new Chessman("pawn", "white"),new Chessman("pawn", "white"),new Chessman("pawn", "white"),new Chessman("pawn", "white"),new Chessman("pawn", "white"),new Chessman("pawn", "white"),
 		new Chessman("rook", "white"),new Chessman("knight", "white"),new Chessman("bishop", "white"),new Chessman("queen", "white"),new Chessman("king", "white"),new Chessman("bishop", "white"),new Chessman("knight", "white"),new Chessman("rook", "white")};
 
+	private String sideToPlay;
 	
 	public Chessboard() {
 		System.out.println("Chessboard generation...");
+		setSideToPlay("white");
 	}
-	
-	@Override
-	public String toString() {
-		String result;
-		result =" coucou";
-		return result;
-	}
-	
 	
 	public String[] getCoords() {return coords;}
 	public void setCoords(String[] coords) {this.coords = coords;}
 	public Chessman[] getCells() {return cells;}
-	public void setCells(Chessman[] cells) {this.cells = cells;}	
+	public void setCells(Chessman[] cells) {this.cells = cells;}
+	public String getSideToPlay() {	return sideToPlay;}
+	public void setSideToPlay(String sideToPlay) {this.sideToPlay = sideToPlay;	}	
 	
-	
-	
+	@Override
+	public String toString() {
+		int j = 1;
+		String result = "";
+		for(int i = 0; i<cells.length; i++) {
+			result += cells[i].getName().charAt(0) + ", ";
+			if(j == 8) {
+				j = 1;
+				result += "\n";
+			} else {j++;}	
+		}
+		return result;
+	}
 	
 	/*
 	

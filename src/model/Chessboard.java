@@ -1,6 +1,8 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class Chessboard {
 
@@ -61,6 +63,51 @@ public class Chessboard {
 		return rslt;
 	}
 	
+	/*
+	 * Move a chess man 
+	 */
+	public void moveAChessman(Move move) {
+		Chessman chessmanCopy = new Chessman(cells[move.getStart()].getName(),cells[move.getStart()].getColor());
+		cells[move.getStart()] = new Chessman("empty", "none");
+		cells[move.getEnd()] = chessmanCopy;
+		System.out.println(chessmanCopy.getName() + " moved " + coords[move.getStart()] +" to " + coords[move.getEnd()]);
+		
+		castleTest(chessmanCopy, move); //test if castle technique still able...
+			
+	 
+	}
+	
+	
+	/*
+	 * Method in order to determine if castle technique is functional or not after the move.
+	 */
+	private void castleTest(Chessman chessman, Move move) {
+		int moveCell = move.getStart();
+		
+		if(!rookCanCastle63 &&  !rookCanCastle56 && !rookCanCastle0 && !rookCanCastle7)
+			return; //if no castle possible, no need to test ... 
+		
+		if(chessman.getName().equals("king")) { 		//else test castle
+			switch(sideToPlay){
+				case "white":
+					rookCanCastle63 = false;
+					rookCanCastle56 = false;
+					break;
+				case "black":
+					rookCanCastle0 = false;
+					rookCanCastle7 = false;
+					break;
+			}		
+		}else if(chessman.getName().equals("rook")) {
+			if(moveCell == 0 || moveCell == 7){
+					rookCanCastle0 = false;
+					rookCanCastle7 = false;}
+		    else if(moveCell == 63 || moveCell == 56){
+					rookCanCastle63 = false;
+					rookCanCastle56 = false;}
+		}
+		return;
+	}
 	 
 	
 	/*
@@ -70,6 +117,10 @@ public class Chessboard {
 		sideToPlay = oppositeColor(sideToPlay);
 	}
 	
+	
+	/*
+	 * Get opposite color
+	 */
 	public String oppositeColor(String color) {
 		switch(color) {
 			case "white":return "black";
@@ -91,7 +142,6 @@ public class Chessboard {
 	
 	public void defineFenFormat() {}
 	public void exportPosition() {}
-	public void moveAChessMan() {}
 	public void isKingcheck() {}
 	public void displayHistoryMoves() {}
 	public void getMarksToPosition() {}

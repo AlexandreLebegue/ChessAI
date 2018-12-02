@@ -73,7 +73,7 @@ public class Chessboard {
 		System.out.println(chessmanCopy.getName() + " moved " + coords[move.getStart()] +" to " + coords[move.getEnd()]);
 		
 		castleTest(chessmanCopy, move); //test if castle technique still able...
-			
+		System.out.println( rookCanCastle63+", "+rookCanCastle56+", "+rookCanCastle0+", "+rookCanCastle7);	
 	 
 	}
 	
@@ -83,7 +83,7 @@ public class Chessboard {
 	 */
 	private void castleTest(Chessman chessman, Move move) {
 		int moveCell = move.getStart();
-		
+			
 		if(!rookCanCastle63 &&  !rookCanCastle56 && !rookCanCastle0 && !rookCanCastle7)
 			return; //if no castle possible, no need to test ... 
 		
@@ -99,12 +99,13 @@ public class Chessboard {
 					break;
 			}		
 		}else if(chessman.getName().equals("rook")) {
-			if(moveCell == 0 || moveCell == 7){
-					rookCanCastle0 = false;
-					rookCanCastle7 = false;}
-		    else if(moveCell == 63 || moveCell == 56){
-					rookCanCastle63 = false;
-					rookCanCastle56 = false;}
+			switch (moveCell) { //switch is the best solution because boolean are passed by value and not reference...
+			case 63: rookCanCastle63 = false; break;
+			case 56: rookCanCastle56 = false; break;
+			case 0: rookCanCastle0 = false; break;
+			case 7: rookCanCastle7 = false; break;
+			}
+			
 		}
 		return;
 	}

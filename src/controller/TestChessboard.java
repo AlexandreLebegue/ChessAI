@@ -13,8 +13,12 @@ public class TestChessboard {
 		System.out.println();
 		System.out.println(chessGame);
 		Move testMove = new Move(10, 18);
+		Move testMove2 = new Move(0, 40);
+
 		System.out.println();
 		chessGame.moveAChessman(testMove);
+		chessGame.moveAChessman(testMove2);
+
 		System.out.println();
 		System.out.println(chessGame);
 		System.out.println();

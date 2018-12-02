@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -37,6 +38,7 @@ public class Chessman {
 	private int[] rookMovements = {-10, 10, -1, 1};
 	private int[] bishopMovements = {-11, -9, 11, 9};
 	private int[] knightMovements = {-12, -21, -19, -8, 12, 21, 19, 8};
+	private int[] royalMovements = {-11, -10, -9, -1, 1, 9, 10, 11};
 	
 	//Constructor
 	
@@ -65,7 +67,113 @@ public class Chessman {
 	public void setColor(String color) {this.color = color;}
 	public int getValue(){return value;}
 
+	// Methods
 	
-	
-
+	/**
+	 * Returns the list of moves for the king
+	 * The king moves from posA to posB
+	 * @param posA : starting point
+	 * @param opponentColor : the color of the opponent
+	 * @param chessboard : the chess board of the game
+	 * @dontCallIsAttacked : to avoid recursive calls
+	 * @return
+	 */
+	public ArrayList<Move> getKingMovements(int posA, String opponentColor, Chessboard chessboard, boolean dontCallIsAttacked) {
+		/*
+		if (dontCallIsAttacked == null) {
+			dontCallIsAttacked = false;
+		}
+		*/
+		
+		ArrayList<Move> kingMoves = new ArrayList<Move>();
+		
+		for (int i = 0; i < royalMovements.length; i++) {
+			int direction = royalMovements[i];
+			int n = tab120[tab64[posA] + direction];
+			
+			// If we are not out of range
+			if (n != -1) {
+				// We append a movement if the case is empty or got an opponent chessman
+				if(chessboard.getCells()[n].getName() == "empty" || chessboard.getCells()[n].color == opponentColor) {
+					Move newMove = new Move(posA, n);
+					kingMoves.add(newMove);
+				}
+			}
+		}
+		
+		// We just keep attacks moves
+		if (dontCallIsAttacked == true) {
+			return (kingMoves);
+		}
+		
+		String currentColor = chessboard.oppositeColor(opponentColor);
+		
+		/* Special move : castle move
+		 * This special move requires 3 conditions :
+		 * C1 : The king and the rook doing the special move have never been moved during the game
+		 * C2 : All cells between the king and the rook are empty
+		 * C3 : All cells between the king and the rook are not in danger and the king is not in check
+		 */
+		if (currentColor == "white") {
+			// C1  
+			if (chessboard.isRookCanCastle63() == true) {
+				if (chessboard.getCells()[63].getName() == "rook" && chessboard.getCells()[63].getColor() == currentColor) {
+					// C2
+					if (chessboard.getCells()[62].getName() == "empty" && chessboard.getCells()[61].getName() == "empty") {
+						//C3
+						if (chessboard.isChessmanAttacked(62, opponentColor) == false && chessboard.isChessmanAttacked(61, opponentColor) == false && chessboard.isChessmanAttacked(posA, opponentColor)) {
+							Move newMove = new Move(posA, 62);
+							kingMoves.add(newMove);
+						}
+					}
+				}
+			}
+			
+			if (chessboard.isRookCanCastle56() == true) {
+				//C1
+				if (chessboard.getCells()[56].getName() == "rook" && chessboard.getCells()[56].getColor() == currentColor) {
+					// C2
+					if (chessboard.getCells()[57].getName() == "empty" && chessboard.getCells()[58].getName() == "empty" && chessboard.getCells()[59].getName() == "empty") {
+						//C3
+						if (chessboard.isChessmanAttacked(57, opponentColor) == false && chessboard.isChessmanAttacked(58, opponentColor) == false && chessboard.isChessmanAttacked(59, opponentColor) == false && chessboard.isChessmanAttacked(posA, opponentColor)) {
+							Move newMove = new Move(posA, 58);
+							kingMoves.add(newMove);
+						}
+					}
+				}
+			}
+		}
+		
+		else {
+			if (currentColor == "black") {
+				// C1
+				if (chessboard.isRookCanCastle7() == true) {
+					// C2
+					if (chessboard.getCells()[6].getName() == "empty" && chessboard.getCells()[5].getName() == "empty") {
+						//C3
+						if (chessboard.isChessmanAttacked(6, opponentColor) == false && chessboard.isChessmanAttacked(5, opponentColor) == false && chessboard.isChessmanAttacked(posA, opponentColor)) {
+							Move newMove = new Move(posA, 6);
+							kingMoves.add(newMove);
+						}
+					}
+				}
+			}
+			
+			if (chessboard.isRookCanCastle0() == true) {
+				//C1
+				if (chessboard.getCells()[0].getName() == "rook" && chessboard.getCells()[0].getColor() == currentColor) {
+					// C2
+					if (chessboard.getCells()[1].getName() == "empty" && chessboard.getCells()[2].getName() == "empty" && chessboard.getCells()[3].getName() == "empty") {
+						//C3
+						if (chessboard.isChessmanAttacked(1, opponentColor) == false && chessboard.isChessmanAttacked(2, opponentColor) == false && chessboard.isChessmanAttacked(3, opponentColor) == false && chessboard.isChessmanAttacked(posA, opponentColor)) {
+							Move newMove = new Move(posA, 2);
+							kingMoves.add(newMove);
+						}
+					}
+				}
+			}
+		}
+		
+		return (kingMoves);
+	}
 }

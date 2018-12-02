@@ -6,13 +6,20 @@ public class Move {
 	private int end;
 	private String promotion;
 	
-	// Constructor
+	// Constructors
 	public Move(int start, int end) {
 		super();
 		this.start = start;
 		this.end = end;
 	}
 	
+	public Move(int start, int end, String promotion) {
+		super();
+		this.start = start;
+		this.end = end;
+		this.promotion = promotion;
+	}
+
 	// Getters and setters
 	public int getStart() {
 		return start;

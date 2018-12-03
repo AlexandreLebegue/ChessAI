@@ -35,10 +35,10 @@ public class Chessman {
 							91, 92, 93, 94, 95, 96, 97, 98};
 	
 	// Directions vectors according to tab64
-	private int[] rookMovements = {-10, 10, -1, 1};
-	private int[] bishopMovements = {-11, -9, 11, 9};
-	private int[] knightMovements = {-12, -21, -19, -8, 12, 21, 19, 8};
-	private int[] royalMovements = {-11, -10, -9, -1, 1, 9, 10, 11};
+	private int[] rookDirections = {-10, 10, -1, 1};
+	private int[] bishopDirections = {-11, -9, 11, 9};
+	private int[] knightDirections = {-12, -21, -19, -8, 12, 21, 19, 8};
+	private int[] royalDirections = {-11, -10, -9, -1, 1, 9, 10, 11};
 	
 	//Constructor
 	
@@ -72,10 +72,10 @@ public class Chessman {
 	/**
 	 * Returns the list of moves for the king
 	 * The king moves from posA to posB
-	 * @param posA : starting point
-	 * @param opponentColor : the color of the opponent
-	 * @param chessboard : the chess board of the game
-	 * @dontCallIsAttacked : to avoid recursive calls
+	 * @param posA: starting point
+	 * @param opponentColor: the color of the opponent
+	 * @param chessboard: the chess board of the game
+	 * @dontCallIsAttacked: to avoid recursive calls
 	 * @return
 	 */
 	public ArrayList<Move> getKingMovements(int posA, String opponentColor, Chessboard chessboard, boolean dontCallIsAttacked) {
@@ -87,8 +87,8 @@ public class Chessman {
 		
 		ArrayList<Move> kingMoves = new ArrayList<Move>();
 		
-		for (int i = 0; i < royalMovements.length; i++) {
-			int direction = royalMovements[i];
+		for (int i = 0; i < royalDirections.length; i++) {
+			int direction = royalDirections[i];
 			int n = tab120[tab64[posA] + direction];
 			
 			// If we are not out of range
@@ -176,4 +176,320 @@ public class Chessman {
 		
 		return (kingMoves);
 	}
+
+	/**
+	 * Returns the list of moves for the rook
+	 * @param posA: starting point
+	 * @param opponentColor: the color of the opponent
+	 * @param chessboard: the chess board of the game
+	 * @return rookMovements : the moves for the root
+	 */
+	public ArrayList<Move> getRookMovements(int posA, String opponentColor, Chessboard chessboard){
+		ArrayList<Move> rookMovements = new ArrayList<Move>();
+		
+		int j;
+		int n;
+		boolean isLooping;
+		for (int i = 0; i < rookDirections.length; i ++) {
+			j = 1;
+			n = 0;
+			isLooping = true;
+			
+			// We loop until we meet the edge of the board or a chessman
+			while (isLooping == true) {
+				n = tab120[tab64[posA] + (rookDirections[i] * j)];
+				
+				// If we are not out of range
+				if (n != -1) {
+					// Add the move if cell is empty or is an enemy
+					if(chessboard.getCells()[n].getName() == "empty" || chessboard.getCells()[n].getColor() == opponentColor) {
+						Move newMove = new Move(posA, n);
+						rookMovements.add(newMove);
+					}
+				}
+				else {
+					isLooping = false;
+				}
+				
+				if (chessboard.getCells()[n].getName() != "empty") {
+					isLooping = false;
+				}
+				j = j + 1;
+			}
+		}
+		
+		return (rookMovements);
+	}
+
+	/**
+	 * Returns the list of moves for the knight
+	 * @param posA: starting point
+	 * @param opponentColor: the color of the opponent
+	 * @param chessboard: the chess board of the game
+	 * @return knightMovements : the moves for the knight
+	 */
+	public ArrayList<Move> getKnightMovements(int posA, String opponentColor, Chessboard chessboard){
+		ArrayList<Move> knightMovements = new ArrayList<Move>();
+		int n;
+		
+		for (int i = 0; i < knightDirections.length; i ++) {
+			n = tab120[tab64[posA] + knightDirections[i]];
+			
+			// If not out of range
+			if (n != -1) {
+				
+				// Add move if cell is empty or got an enemy chessman
+				if(chessboard.getCells()[n].getName() == "empty" || chessboard.getCells()[n].getColor() == opponentColor) {
+					Move newMove = new Move(posA, n);
+					knightMovements.add(newMove);
+				}
+			}
+		}
+		
+		return (knightMovements);
+	}
+	
+	/**
+	 * Returns the moves of a bishop
+	 * @param posA: starting point
+	 * @param opponentColor: the color of the opponent
+	 * @param chessboard: the chess board of the game
+	 * @return bishopMovements: moves of the bishop
+	 */
+	public ArrayList<Move> getBishopMovements(int posA, String opponentColor, Chessboard chessboard){
+		ArrayList<Move> bishopMovements = new ArrayList<Move>();
+		int j;
+		int n;
+		boolean isLooping;
+		
+		for (int i = 0; i < bishopDirections.length; i ++) {
+			j = 1;
+			isLooping = true;
+			
+			while (isLooping == true) {
+				n = tab120[tab64[posA] + (bishopDirections[i] * j)];
+				
+				// If not out of range
+				if (n != -1) {
+					// We add a move if the cell is empty or got an enemy chessman
+					if(chessboard.getCells()[n].getName() == "empty" || chessboard.getCells()[n].getColor() == opponentColor) {
+						Move newMove = new Move(posA, n);
+						bishopMovements.add(newMove);
+					}
+				}
+				
+				else {
+					isLooping = false;
+				}
+				
+				if (chessboard.getCells()[n].getName() != "empty") {
+					isLooping = false;
+				}
+				j = j + 1;
+			}
+		}
+		
+		return (bishopMovements);
+	}
+	
+	/**
+	 * Returns the move of a queen
+	 * @param posA: starting point
+	 * @param opponentColor: the color of the opponent
+	 * @param chessboard: the chess board of the game
+	 * @return queenMovements: moves of the queen
+	 */
+	public ArrayList<Move> getQueenMovements(int posA, String opponentColor, Chessboard chessboard){
+		ArrayList<Move> queenMovements = new ArrayList<Move> ();
+		queenMovements.addAll(getRookMovements(posA, opponentColor, chessboard));
+		queenMovements.addAll(getBishopMovements(posA, opponentColor, chessboard));
+		return queenMovements;
+	}
+	
+	/**
+	 * Returns the moves of a pawn
+	 * @param posA: starting point
+	 * @param opponentColor: the color of the opponent
+	 * @param chessboard: the chess board of the game
+	 * @return pawnMovements: moves of the pawn
+	 */
+	public ArrayList<Move> getPawnMovements(int posA, String opponentColor, Chessboard chessboard){
+		ArrayList<Move> pawnMovements = new ArrayList<Move> ();
+		String currentColor = chessboard.oppositeColor(opponentColor);
+		int n;
+		if (currentColor == "white") {
+			
+			// When pawn is not at starting line
+			n = tab120[tab64[posA] - 10];
+			
+			// If not out of range
+			if (n != -1) {
+				
+				// Add a move if the cell is empty
+				if(chessboard.getCells()[n].getName() == "empty") {
+					
+					// Exception for promotion when a pawn comes to the enemy edge of board
+					if (n < 8) {
+						Move promotionQueen = new Move(posA, n, "q");
+						Move promotionRook = new Move(posA, n, "r");
+						Move promotionKnight = new Move(posA, n, "k");
+						Move promotionBishop = new Move(posA, n, "b");
+						Collections.addAll(pawnMovements, promotionQueen, promotionRook, promotionKnight, promotionBishop);
+					}
+					else {
+						Move newMove = new Move(posA, n);
+						pawnMovements.add(newMove);
+					}
+				}
+			}
+			
+			// When pawn is at starting line
+			if(posA >= 55 && posA <= 62) {
+				// add move if the next 2 upper cells are empty
+				if(chessboard.getCells()[posA - 8].getName() == "empty" && chessboard.getCells()[posA - 16].getName() == "empty") {
+					Move newMove = new Move(posA, posA - 16);
+					pawnMovements.add(newMove);
+				}
+			}
+			
+			// Move and nom nom nom upper left cell
+			n = tab120[tab64[posA] - 11];
+			
+			// If not out of range
+			if(n != -1) {
+				
+				// If there is an opponent chessman in the upper left cell
+				if(chessboard.getCells()[n].getColor() == opponentColor || chessboard.getNbEnPassant() == n) {
+					
+					// If pawn arrival is edge of the upper board it gets promoted after k-k-killing spree
+					if(n < 8) {
+						Move promotionQueen = new Move(posA, n, "q");
+						Move promotionRook = new Move(posA, n, "r");
+						Move promotionKnight = new Move(posA, n, "k");
+						Move promotionBishop = new Move(posA, n, "b");
+						Collections.addAll(pawnMovements, promotionQueen, promotionRook, promotionKnight, promotionBishop);
+					}
+					else {
+						Move newMove = new Move(posA, n);
+						pawnMovements.add(newMove);
+					}
+				}
+			}
+			
+			// Move and nom nom nom upper right cell
+			n = tab120[tab64[posA] - 9];
+			
+			// If not out of range
+			if(n != -1) {
+				
+				// If there is an opponent chessman in the upper right cell
+				if(chessboard.getCells()[n].getColor() == opponentColor || chessboard.getNbEnPassant() == n) {
+					
+					// If pawn arrival is edge of the upper board it gets promoted after k-k-killing spree
+					if(n < 8) {
+						Move promotionQueen = new Move(posA, n, "q");
+						Move promotionRook = new Move(posA, n, "r");
+						Move promotionKnight = new Move(posA, n, "k");
+						Move promotionBishop = new Move(posA, n, "b");
+						Collections.addAll(pawnMovements, promotionQueen, promotionRook, promotionKnight, promotionBishop);
+					}
+					else {
+						Move newMove = new Move(posA, n);
+						pawnMovements.add(newMove);
+					}
+				}
+			}
+			
+		}
+		
+		// Black pawn
+		else {
+			
+			// When pawn is not at starting line
+			n = tab120[tab64[posA] + 10];
+			
+			// If not out of range
+			if (n != -1) {
+				
+				// Add move if the cell is empty
+				if (chessboard.getCells()[n].getName() == "empty") {
+					
+					// Promotion of pawn
+					if (n > 55) {
+						Move promotionQueen = new Move(posA, n, "q");
+						Move promotionRook = new Move(posA, n, "r");
+						Move promotionKnight = new Move(posA, n, "k");
+						Move promotionBishop = new Move(posA, n, "b");
+						Collections.addAll(pawnMovements,  promotionQueen, promotionRook, promotionKnight, promotionBishop);
+					}
+					
+					else {
+						Move newMove = new Move(posA, n);
+						pawnMovements.add(newMove);
+					}
+				}
+			}
+			
+			// If pawn is at starting line
+			if (posA >= 8 && posA <= 15) {
+				
+				// And if the two cells bellow are empty
+				if(chessboard.getCells()[posA + 8].getName() == "empty" && chessboard.getCells()[posA + 16].getName() == "empty") {
+					Move newMove = new Move(posA, posA + 16);
+					pawnMovements.add(newMove);
+				}
+			}
+			
+			// Move and nom nom nom enemy pawn on left bottom
+			n =  tab120[tab64[posA] + 9];
+			
+			// If not out of range
+			if(n != -1) {
+				
+				if(chessboard.getCells()[n].getColor() == opponentColor || chessboard.getNbEnPassant() == n) {
+					if(n > 55) {
+						Move promotionQueen = new Move(posA, n, "q");
+						Move promotionRook = new Move(posA, n, "r");
+						Move promotionKnight = new Move(posA, n, "k");
+						Move promotionBishop = new Move(posA, n, "b");
+						Collections.addAll(pawnMovements,  promotionQueen, promotionRook, promotionKnight, promotionBishop);
+					}
+					
+					else {
+						Move newMove = new Move(posA, n);
+						pawnMovements.add(newMove);
+					}
+				}
+			}
+			
+			// Move and nom nom nom enemy pawn on right bottom
+			n =  tab120[tab64[posA] + 11];
+			
+			// If not out of range
+			if(n != -1) {
+				
+				if(chessboard.getCells()[n].getColor() == opponentColor || chessboard.getNbEnPassant() == n) {
+					if(n > 55) {
+						Move promotionQueen = new Move(posA, n, "q");
+						Move promotionRook = new Move(posA, n, "r");
+						Move promotionKnight = new Move(posA, n, "k");
+						Move promotionBishop = new Move(posA, n, "b");
+						Collections.addAll(pawnMovements,  promotionQueen, promotionRook, promotionKnight, promotionBishop);
+					}
+					
+					else {
+						Move newMove = new Move(posA, n);
+						pawnMovements.add(newMove);
+					}
+				}
+			}
+			
+		}
+		
+		return pawnMovements;
+	}
+	
+	
+	
+
 }

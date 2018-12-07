@@ -54,14 +54,38 @@ public class Chessboard {
 	 */
 	public ArrayList<Move> genAllMoves(String camp) {		
 		ArrayList<Move> rslt = new ArrayList<Move>(); 
+		int position = 0;
 		for(Chessman chessman : cells)
 		{
-			/* if (chessman.getColor().equals(camp))) 
-			 	rslt.addAll(chessman.getAllMove)*/
+
+			
+			if (chessman.getColor().equals(camp)) {
+
+				switch (chessman.getName()) {
+				
+				case "king":
+					rslt.addAll(chessman.getKingMovements(position, oppositeColor(camp), this, false));	break;
+				case "queen":
+					rslt.addAll(chessman.getQueenMovements(position, oppositeColor(camp), this));break;
+				case "rook":
+					rslt.addAll(chessman.getRookMovements(position, oppositeColor(camp), this));break;
+				case "bishop":
+					rslt.addAll(chessman.getBishopMovements(position, oppositeColor(camp), this));break;
+				case "knight":
+					rslt.addAll(chessman.getKnightMovements(position, oppositeColor(camp), this));break;
+				case "pawn":
+					rslt.addAll(chessman.getPawnMovements(position, oppositeColor(camp), this));break;
+					
+				}
+			 	
+			}
+			position++;
+			
 		}
 		
 		return rslt;
 	}
+	
 	
 	/*
 	 * Move a chess man 
@@ -73,7 +97,6 @@ public class Chessboard {
 		System.out.println(chessmanCopy.getName() + " moved " + coords[move.getStart()] +" to " + coords[move.getEnd()]);
 		
 		castleTest(chessmanCopy, move); //test if castle technique still able...
-		System.out.println( rookCanCastle63+", "+rookCanCastle56+", "+rookCanCastle0+", "+rookCanCastle7);	
 	 
 	}
 	
@@ -166,6 +189,9 @@ public class Chessboard {
 	public void setRookCanCastle56(boolean rookCanCastle56) {this.rookCanCastle56 = rookCanCastle56;}
 	public boolean isRookCanCastle0() {return rookCanCastle0;}
 	public void setRookCanCastle0(boolean rookCanCastle0) {this.rookCanCastle0 = rookCanCastle0;}
+	public int getNbEnPassant() {return nbEnPassant;}
+	public void setNbEnPassant(int nbEnPassant) {this.nbEnPassant = nbEnPassant;}
+	
 	
 	@Override
 	public String toString() {
@@ -180,11 +206,6 @@ public class Chessboard {
 		}
 		return result;
 	}
-
-
-
-
-
 
 
 }

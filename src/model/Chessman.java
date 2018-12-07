@@ -11,6 +11,7 @@ public class Chessman {
 	private String color;
 	private int value;
 	
+	//int n = tab120[tab64[posA] + direction];
 	// Mailboxes tab120 and tab64 according to method "mail box" from Robert Hyatt to prevent out of range
 	private int[] tab120 =  {1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 							-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -198,7 +199,7 @@ public class Chessman {
 			// We loop until we meet the edge of the board or a chessman
 			while (isLooping == true) {
 				n = tab120[tab64[posA] + (rookDirections[i] * j)];
-				
+
 				// If we are not out of range
 				if (n != -1) {
 					// Add the move if cell is empty or is an enemy
@@ -209,6 +210,7 @@ public class Chessman {
 				}
 				else {
 					isLooping = false;
+					continue;
 				}
 				
 				if (chessboard.getCells()[n].getName() != "empty") {
@@ -268,7 +270,6 @@ public class Chessman {
 			
 			while (isLooping == true) {
 				n = tab120[tab64[posA] + (bishopDirections[i] * j)];
-				
 				// If not out of range
 				if (n != -1) {
 					// We add a move if the cell is empty or got an enemy chessman
@@ -280,6 +281,8 @@ public class Chessman {
 				
 				else {
 					isLooping = false;
+					continue;
+
 				}
 				
 				if (chessboard.getCells()[n].getName() != "empty") {

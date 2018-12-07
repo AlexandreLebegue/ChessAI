@@ -40,7 +40,7 @@ public class Chessboard {
 	 * Initialization
 	 */
 	public Chessboard() {
-		System.out.println("Chessboard generation...");
+		//System.out.println("Chessboard generation...");
 		setSideToPlay("white");
 		history = new ArrayList<Move>();
 	}
@@ -57,8 +57,6 @@ public class Chessboard {
 		int position = 0;
 		for(Chessman chessman : cells)
 		{
-
-			
 			if (chessman.getColor().equals(camp)) {
 
 				switch (chessman.getName()) {
@@ -74,15 +72,11 @@ public class Chessboard {
 				case "knight":
 					rslt.addAll(chessman.getKnightMovements(position, oppositeColor(camp), this));break;
 				case "pawn":
-					rslt.addAll(chessman.getPawnMovements(position, oppositeColor(camp), this));break;
-					
-				}
-			 	
+					rslt.addAll(chessman.getPawnMovements(position, oppositeColor(camp), this));break;	
+				}	
 			}
-			position++;
-			
+			position++;	
 		}
-		
 		return rslt;
 	}
 	
@@ -94,10 +88,10 @@ public class Chessboard {
 		Chessman chessmanCopy = new Chessman(cells[move.getStart()].getName(),cells[move.getStart()].getColor());
 		cells[move.getStart()] = new Chessman("empty", "none");
 		cells[move.getEnd()] = chessmanCopy;
-		System.out.println(chessmanCopy.getName() + " moved " + coords[move.getStart()] +" to " + coords[move.getEnd()]);
+		System.out.println("#"+chessmanCopy.getName() + " moved " + coords[move.getStart()] +" to " + coords[move.getEnd()]);
 		
-		castleTest(chessmanCopy, move); //test if castle technique still able...
-	 
+		if(rookCanCastle63 || rookCanCastle56 || rookCanCastle0 || rookCanCastle7)//if no castle possible, no need to test ... 
+			castleTest(chessmanCopy, move); //test if castle technique still able...
 	}
 	
 	
@@ -106,10 +100,7 @@ public class Chessboard {
 	 */
 	private void castleTest(Chessman chessman, Move move) {
 		int moveCell = move.getStart();
-			
-		if(!rookCanCastle63 &&  !rookCanCastle56 && !rookCanCastle0 && !rookCanCastle7)
-			return; //if no castle possible, no need to test ... 
-		
+					
 		if(chessman.getName().equals("king")) { 		//else test castle
 			switch(sideToPlay){
 				case "white":
@@ -162,6 +153,40 @@ public class Chessboard {
 	public boolean isChessmanAttacked(int index, String opponentColor) {		
 		return true;
 	}
+	
+	/*
+	 * Decode a move send by winboardProtocol
+	 * @param mov: move to decode
+	 * @return right move to apply
+	 */
+	public Move decodeMove(String mov) {
+		int len = mov.length();
+		int start = 0; 
+		int end =  0;
+		String first = mov.substring(0, 2);
+		String second = mov.substring(2, 4);
+		
+		for(int i= 0; i<coords.length; i++) {
+			if(first.equals(coords[i]))
+				start = i;
+			else if(second.equals(coords[i]))
+				end = i;
+		}
+		
+		if(len == 4) {
+			return new Move(start, end);
+		}
+		else if(len == 5) {
+			return new Move(start, end, mov.substring(5, 5));
+		}
+		
+		return null;
+	}
+	
+	public String encodeMove(Move move) {
+		return (coords[move.getStart()]+""+coords[move.getEnd()]);//+""+move.getPromotion().charAt(0));
+	}
+	
 
 	
 	public void defineFenFormat() {}

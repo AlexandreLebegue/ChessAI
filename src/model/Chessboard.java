@@ -198,7 +198,7 @@ public class Chessboard {
 		int j = 1;
 		String result = "";
 		for(int i = 0; i<cells.length; i++) {
-			result += cells[i].getName().charAt(0) + ", ";
+			result += cells[i].getName().toUpperCase().charAt(0) +""+cells[i].getColor().charAt(0)+ ", ";
 			if(j == 8) {
 				j = 1;
 				result += "\n";

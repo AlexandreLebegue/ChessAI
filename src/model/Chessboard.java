@@ -27,7 +27,7 @@ public class Chessboard {
 	new Chessman("rook", "white"),new Chessman("knight", "white"),new Chessman("bishop", "white"),new Chessman("queen", "white"),new Chessman("king", "white"),new Chessman("bishop", "white"),new Chessman("knight", "white"),new Chessman("rook", "white")};
 
 	private String sideToPlay; //determine which player have to play
-	private int nbEnPassant = -1; //number of cells which can be take by the 'en passant' technique
+	private int nbEnPassant = -1; //index of cell which can be take by the 'en passant' technique
 	private boolean rookCanCastle63=true; //determine if white side can castle
     private boolean rookCanCastle56=true; //determine if black side can castle 
     private boolean rookCanCastle0=true; //determine if white side can castle
@@ -87,13 +87,49 @@ public class Chessboard {
 	public void moveAChessman(Move move) {
 		Chessman chessmanCopy = new Chessman(cells[move.getStart()].getName(),cells[move.getStart()].getColor());
 		cells[move.getStart()] = new Chessman("empty", "none");
-		cells[move.getEnd()] = chessmanCopy;
+		
+		if(move.getPromotion() != null)
+			cells[move.getEnd()] = new Chessman(move.getPromotion(), chessmanCopy.getColor());
+		else
+			cells[move.getEnd()] = chessmanCopy;
+		
 		System.out.println("#"+chessmanCopy.getName() + " moved " + coords[move.getStart()] +" to " + coords[move.getEnd()]);
 		
 		if(rookCanCastle63 || rookCanCastle56 || rookCanCastle0 || rookCanCastle7)//if no castle possible, no need to test ... 
 			castleTest(chessmanCopy, move); //test if castle technique still able...
+		
+		enPassantTest(chessmanCopy, move);
 	}
 	
+	/*
+	 * Detect in which case En Passant tech is possible
+	 */
+	private void enPassantTest(Chessman chessman, Move move) {
+		nbEnPassant = -1;	 //each turn enPassant is reinitialized
+		
+		if(!chessman.getName().equals("pawn")) {return;}//if not a pawn skip useless operation...
+		
+		switch (chessman.getColor()) {
+		
+		case "black":
+			if(move.getStart()>=8 && move.getStart()<= 15) { //if is at starting point
+				if(move.getEnd()>=24 && move.getEnd()<= 31) {
+					nbEnPassant = move.getEnd()-8; //one case before
+					System.out.println("#EnPassant is possible in "+ coords[nbEnPassant]);
+				}					
+			} 
+			break;
+		
+		case "white":
+			if(move.getStart()>=48 && move.getStart()<= 55) { //if is at starting point
+				if(move.getEnd()>=32 && move.getEnd()<= 39) {
+					nbEnPassant = move.getEnd()+8; //one case before
+					System.out.println("#EnPassant is possible in "+ coords[nbEnPassant]);
+				}					
+			} 
+			break;
+		}		
+	}
 	
 	/*
 	 * Method in order to determine if castle technique is functional or not after the move.
@@ -101,8 +137,8 @@ public class Chessboard {
 	private void castleTest(Chessman chessman, Move move) {
 		int moveCell = move.getStart();
 					
-		if(chessman.getName().equals("king")) { 		//else test castle
-			switch(sideToPlay){
+		if(chessman.getName().equals("king")) { 		//if king moves, castle is not possible anymore
+			switch(chessman.getColor()){
 				case "white":
 					rookCanCastle63 = false;
 					rookCanCastle56 = false;
@@ -147,7 +183,6 @@ public class Chessboard {
 	/*
 	public void cancelLastMove() {
 		Move lastMove = history.get(history.size()-1);
-		
 	}
 */
 	public boolean isChessmanAttacked(int index, String opponentColor) {		
@@ -183,8 +218,16 @@ public class Chessboard {
 		return null;
 	}
 	
+	/*
+	 * Format a move to WindBoard protocol
+	 * @param move: move to decode
+	 * @return: move formatted
+	 */
 	public String encodeMove(Move move) {
-		return (coords[move.getStart()]+""+coords[move.getEnd()]);//+""+move.getPromotion().charAt(0));
+		if(move.getPromotion()!= null) //if they are a promotion
+			return (coords[move.getStart()]+""+coords[move.getEnd()]+""+move.getPromotion().charAt(0));
+		else //else
+			return (coords[move.getStart()]+""+coords[move.getEnd()]);//+""+move.getPromotion().charAt(0));
 	}
 	
 

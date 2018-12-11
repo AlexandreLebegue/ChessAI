@@ -333,10 +333,10 @@ public class Chessman {
 					
 					// Exception for promotion when a pawn comes to the enemy edge of board
 					if (n < 8) {
-						Move promotionQueen = new Move(posA, n, "q");
-						Move promotionRook = new Move(posA, n, "r");
-						Move promotionKnight = new Move(posA, n, "k");
-						Move promotionBishop = new Move(posA, n, "b");
+						Move promotionQueen = new Move(posA, n, "queen");
+						Move promotionRook = new Move(posA, n, "rook");
+						Move promotionKnight = new Move(posA, n, "knight");
+						Move promotionBishop = new Move(posA, n, "bishop");
 						Collections.addAll(pawnMovements, promotionQueen, promotionRook, promotionKnight, promotionBishop);
 					}
 					else {
@@ -366,10 +366,10 @@ public class Chessman {
 					
 					// If pawn arrival is edge of the upper board it gets promoted after k-k-killing spree
 					if(n < 8) {
-						Move promotionQueen = new Move(posA, n, "q");
-						Move promotionRook = new Move(posA, n, "r");
-						Move promotionKnight = new Move(posA, n, "k");
-						Move promotionBishop = new Move(posA, n, "b");
+						Move promotionQueen = new Move(posA, n, "queen");
+						Move promotionRook = new Move(posA, n, "rook");
+						Move promotionKnight = new Move(posA, n, "knight");
+						Move promotionBishop = new Move(posA, n, "bishop");
 						Collections.addAll(pawnMovements, promotionQueen, promotionRook, promotionKnight, promotionBishop);
 					}
 					else {

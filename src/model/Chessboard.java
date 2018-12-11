@@ -191,8 +191,31 @@ public class Chessboard {
 	 * @return : old state of cells...
 	 */
 	public void cancelLastMove() {
-		cells = history.get(history.size()-2);
+		cells = history.get(history.size()-2).clone();
+		history.remove(history.size()-1);
 	}
+	
+	public void displayHistoryMoves() {
+		
+		System.out.println("#Affichage de l'historique");
+		
+		for(Chessman[] hystoryCells : history) {
+			int j = 1;
+			String result = "";
+			for(int i = 0; i<hystoryCells.length; i++) {
+				result += hystoryCells[i].getName().toUpperCase().charAt(0) +""+hystoryCells[i].getColor().charAt(0)+ ", ";
+				if(j == 8) {
+					j = 1;
+					result += "\n";
+				} else {j++;}	
+			}
+			System.out.println();
+			System.out.println(result);
+			System.out.println();
+
+		}
+	}
+
 
 	/*
 	 * Check if a chessman is attacked
@@ -266,7 +289,6 @@ public class Chessboard {
 	
 	public void defineFenFormat() {}
 	public void exportPosition() {}
-	public void displayHistoryMoves() {}
 	public void getMarksToPosition() {}
 	
 	//Getters, Setters...

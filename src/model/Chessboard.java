@@ -1,8 +1,6 @@
 package model;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 public class Chessboard {
 
@@ -34,7 +32,6 @@ public class Chessboard {
     private boolean rookCanCastle7=true; //determine if black side can castle 
  
 	private ArrayList<Chessman[]> history ; //History of moves played	
-    
 	
 	/*
 	 * Initialization
@@ -43,7 +40,36 @@ public class Chessboard {
 		//System.out.println("Chessboard generation...");
 		setSideToPlay("white");
 		history = new ArrayList<Chessman[]>();
+		history.add(this.cells.clone());
 	}
+	
+	
+	/**
+	 * Copy constructor
+	 * @param chessboardToCopy
+	 * @param sideToPlay
+	 */
+	public Chessboard (Chessboard chessboardToCopy, String sideToPlay)
+	{
+		// Copying all variables (excepted history which should stay empty)
+		setSideToPlay(sideToPlay);
+		history = new ArrayList<Chessman[]>();
+		this.rookCanCastle63 = chessboardToCopy.rookCanCastle63;
+		this.rookCanCastle56 = chessboardToCopy.rookCanCastle56;
+		this.rookCanCastle0 = chessboardToCopy.rookCanCastle0;
+		this.rookCanCastle7 = chessboardToCopy.rookCanCastle7;
+		this.nbEnPassant = chessboardToCopy.nbEnPassant;
+		
+		// Copying the current positions of the pieces
+		this.cells = new Chessman[chessboardToCopy.cells.length];
+		for (int i=0 ; i<chessboardToCopy.cells.length ; i++)
+		{
+			Chessman currentChessman = chessboardToCopy.cells[i];
+			this.cells[i] = new Chessman(currentChessman.getName(), currentChessman.getColor());
+		}
+		history.add(this.cells.clone());
+	}
+	
 	
 	
 	// Methods :
@@ -84,11 +110,9 @@ public class Chessboard {
 	/*
 	 * Move a chess man 
 	 */
-	public void moveAChessman(Move move) {
-		//First we add old state in a history list...
-		history.add(cells.clone());
-		
-		//Then we copy the chessman and replace his start position by an empty square
+	public void moveAChessman(Move move)
+	{
+		//We copy the chessman and replace his start position by an empty square
 		Chessman chessmanCopy = new Chessman(cells[move.getStart()].getName(),cells[move.getStart()].getColor());
 		cells[move.getStart()] = new Chessman("empty", "none");
 		
@@ -99,6 +123,11 @@ public class Chessboard {
 			cells[move.getEnd()] = chessmanCopy;
 		
 		System.out.println("#"+chessmanCopy.getName() + " moved " + coords[move.getStart()] +" to " + coords[move.getEnd()]);
+		
+		
+		// We add the new configuration of cells in history
+		history.add(cells.clone());
+		
 		
 		//Finally, we test if rook and EnPassant tech can still works or not...
 		if(rookCanCastle63 || rookCanCastle56 || rookCanCastle0 || rookCanCastle7)//if no castle possible, no need to test ... 
@@ -182,9 +211,10 @@ public class Chessboard {
 		switch(color) {
 			case "white":return "black";
 			case "black":return "white";
-	}
+		}
 		return "";
 	}
+	
 	
 	/*
 	 * Cancel last move
@@ -298,6 +328,10 @@ public class Chessboard {
 	
 	public Chessman[] getCells() {return cells;}
 	public void setCells(Chessman[] cells) {this.cells = cells;}
+	
+
+	//public ArrayList<Move> getHistory() { return history; }
+	public ArrayList<Chessman[]> getHistory() { return history; } 
 	
 	public String getSideToPlay() {	return sideToPlay;}
 	public void setSideToPlay(String sideToPlay) {this.sideToPlay = sideToPlay;	}	

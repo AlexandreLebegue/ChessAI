@@ -40,5 +40,16 @@ public class Move {
 		this.promotion = promotion;
 	}
 	
-		
+	@Override
+	public boolean equals(Object moveObject)
+	{
+		Move move = (Move)moveObject; 
+		return this.start == move.start && this.end == move.end && this.promotion == move.promotion;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "[" + start + "-->" + end + "]";
+	}
 }

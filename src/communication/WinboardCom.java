@@ -59,6 +59,7 @@ public class WinboardCom {
 					 }
 					 chessboard.nextTurn();
 					 ArrayList<Move>  allmoves = chessboard.genAllMoves(chessboard.getSideToPlay());
+					 
 					  Move mv = allmoves.get((int)Math.random() * ( allmoves.size())+1); //TODO Change this with a true AI engine
 					  chessboard.moveAChessman(mv);
 					  System.out.println("move "+chessboard.encodeMove(mv));

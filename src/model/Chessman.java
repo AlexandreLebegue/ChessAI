@@ -390,10 +390,10 @@ public class Chessman {
 					
 					// If pawn arrival is edge of the upper board it gets promoted after k-k-killing spree
 					if(n < 8) {
-						Move promotionQueen = new Move(posA, n, "q");
-						Move promotionRook = new Move(posA, n, "r");
-						Move promotionKnight = new Move(posA, n, "k");
-						Move promotionBishop = new Move(posA, n, "b");
+						Move promotionQueen = new Move(posA, n, "queen");
+						Move promotionRook = new Move(posA, n, "rook");
+						Move promotionKnight = new Move(posA, n, "knight");
+						Move promotionBishop = new Move(posA, n, "bishop");
 						Collections.addAll(pawnMovements, promotionQueen, promotionRook, promotionKnight, promotionBishop);
 					}
 					else {
@@ -419,10 +419,10 @@ public class Chessman {
 					
 					// Promotion of pawn
 					if (n > 55) {
-						Move promotionQueen = new Move(posA, n, "q");
-						Move promotionRook = new Move(posA, n, "r");
-						Move promotionKnight = new Move(posA, n, "k");
-						Move promotionBishop = new Move(posA, n, "b");
+						Move promotionQueen = new Move(posA, n, "quenn");
+						Move promotionRook = new Move(posA, n, "rook");
+						Move promotionKnight = new Move(posA, n, "knight");
+						Move promotionBishop = new Move(posA, n, "bishop");
 						Collections.addAll(pawnMovements,  promotionQueen, promotionRook, promotionKnight, promotionBishop);
 					}
 					
@@ -451,10 +451,10 @@ public class Chessman {
 				
 				if(chessboard.getCells()[n].getColor() == opponentColor || chessboard.getNbEnPassant() == n) {
 					if(n > 55) {
-						Move promotionQueen = new Move(posA, n, "q");
-						Move promotionRook = new Move(posA, n, "r");
-						Move promotionKnight = new Move(posA, n, "k");
-						Move promotionBishop = new Move(posA, n, "b");
+						Move promotionQueen = new Move(posA, n, "queen");
+						Move promotionRook = new Move(posA, n, "rook");
+						Move promotionKnight = new Move(posA, n, "knight");
+						Move promotionBishop = new Move(posA, n, "bishop");
 						Collections.addAll(pawnMovements,  promotionQueen, promotionRook, promotionKnight, promotionBishop);
 					}
 					
@@ -473,10 +473,10 @@ public class Chessman {
 				
 				if(chessboard.getCells()[n].getColor() == opponentColor || chessboard.getNbEnPassant() == n) {
 					if(n > 55) {
-						Move promotionQueen = new Move(posA, n, "q");
-						Move promotionRook = new Move(posA, n, "r");
-						Move promotionKnight = new Move(posA, n, "k");
-						Move promotionBishop = new Move(posA, n, "b");
+						Move promotionQueen = new Move(posA, n, "queen");
+						Move promotionRook = new Move(posA, n, "rook");
+						Move promotionKnight = new Move(posA, n, "knight");
+						Move promotionBishop = new Move(posA, n, "bishop");
 						Collections.addAll(pawnMovements,  promotionQueen, promotionRook, promotionKnight, promotionBishop);
 					}
 					

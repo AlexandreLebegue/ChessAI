@@ -33,7 +33,7 @@ public class Chessboard {
     private boolean rookCanCastle0=true; //determine if white side can castle
     private boolean rookCanCastle7=true; //determine if black side can castle 
  
-	private ArrayList<Move> history ; //History of moves played	
+	private ArrayList<Chessman[]> history ; //History of moves played	
     
 	
 	/*
@@ -42,7 +42,7 @@ public class Chessboard {
 	public Chessboard() {
 		//System.out.println("Chessboard generation...");
 		setSideToPlay("white");
-		history = new ArrayList<Move>();
+		history = new ArrayList<Chessman[]>();
 	}
 	
 	
@@ -85,9 +85,14 @@ public class Chessboard {
 	 * Move a chess man 
 	 */
 	public void moveAChessman(Move move) {
+		//First we add old state in a history list...
+		history.add(cells.clone());
+		
+		//Then we copy the chessman and replace his start position by an empty square
 		Chessman chessmanCopy = new Chessman(cells[move.getStart()].getName(),cells[move.getStart()].getColor());
 		cells[move.getStart()] = new Chessman("empty", "none");
 		
+		//Then we test if chessman is promoted and we affect the new position of the chessman
 		if(move.getPromotion() != null)
 			cells[move.getEnd()] = new Chessman(move.getPromotion(), chessmanCopy.getColor());
 		else
@@ -95,6 +100,7 @@ public class Chessboard {
 		
 		System.out.println("#"+chessmanCopy.getName() + " moved " + coords[move.getStart()] +" to " + coords[move.getEnd()]);
 		
+		//Finally, we test if rook and EnPassant tech can still works or not...
 		if(rookCanCastle63 || rookCanCastle56 || rookCanCastle0 || rookCanCastle7)//if no castle possible, no need to test ... 
 			castleTest(chessmanCopy, move); //test if castle technique still able...
 		
@@ -181,12 +187,38 @@ public class Chessboard {
 	}
 	
 	/*
+	 * Cancel last move
+	 * @return : old state of cells...
+	 */
 	public void cancelLastMove() {
-		Move lastMove = history.get(history.size()-1);
+		cells = history.get(history.size()-2);
 	}
-*/
-	public boolean isChessmanAttacked(int index, String opponentColor) {		
-		return true;
+
+	/*
+	 * Check if a chessman is attacked
+	 * @param index: case to check
+	 * @param opponent color: color of enemy
+	 * @return: is attacked or not
+	 */
+	public boolean isChessmanAttacked(int index, String opponentColor) {
+		
+		ArrayList<Move> ennemiesMove = this.genAllMoves(opponentColor);
+		for(Move move : ennemiesMove) {
+			if(move.getEnd() == index)
+				return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean isKingcheck(String color) {
+		int i;
+		for(i = 0; i<64;i++) {
+			if(cells[i].getName().equals("king"))
+				break;
+		}
+		
+		return this.isChessmanAttacked(i, color);
 	}
 	
 	/*
@@ -234,7 +266,6 @@ public class Chessboard {
 	
 	public void defineFenFormat() {}
 	public void exportPosition() {}
-	public void isKingcheck() {}
 	public void displayHistoryMoves() {}
 	public void getMarksToPosition() {}
 	

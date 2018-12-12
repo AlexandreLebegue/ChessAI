@@ -177,6 +177,16 @@ public class MinimaxAI
 		if(opponentMoves.isEmpty()) utility += BONUS_CHECKMATE; // Checkmate in our favor!
 		if(chessboard.isCheckmate()) utility += MALUS_CHECKMATE; // Checkmate in favor of the opponent!
 		
+		// Put a bonus if we can rook
+		if (ourColor == "white") {
+			if (chessboard.isRookCanCastle63() == true) utility += 1;
+			if (chessboard.isRookCanCastle0() == true) utility += 1;
+		}
+		else {
+			if (chessboard.isRookCanCastle56() == true) utility += 1;
+			if (chessboard.isRookCanCastle7() == true) utility += 1;
+		}
+		
 		/*System.out.println("Utility for chessboard - " + chessboard.getSideToPlay() + " playing");
 		System.out.println(chessboard.toString());
 		System.out.println(utility);*/

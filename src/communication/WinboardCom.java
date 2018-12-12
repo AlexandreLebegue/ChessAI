@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 //import java.util.ArrayList;
 
+import engine.Engine;
 import model.Chessboard;
 import model.MinimaxAI;
 import model.Move;
@@ -13,7 +14,7 @@ public class WinboardCom {
 
 	public static void main(String[] args) throws IOException {
 
-		Chessboard chessboard = new Chessboard();
+		Engine chessEngine = new Engine();
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -28,49 +29,36 @@ public class WinboardCom {
 
 			if(command.contentEquals("new"))
 			{
-				chessboard = new Chessboard();
+				chessEngine.stopNoise();
+				chessEngine.newGame();
+				chessEngine.stopNoise();
 			}
 
 			if(command.contentEquals("quit"))
 			{
+				chessEngine.stopNoise();
 				System.exit(0);
 			}
 
 			if(command.contentEquals("go"))
 			{
-				//ArrayList<Move> allmoves = chessboard.genAllMoves(chessboard.getSideToPlay(), true);
-				//Move move = allmoves.get((int)Math.random() * ( allmoves.size())+1);
-				/* Comment the two lines above and uncomment the two lines below to test on Arena with Minimax */
-				MinimaxAI minimaxAI = new MinimaxAI();
-				Move move = minimaxAI.alphaBetaMinimaxSearch(chessboard); // Calling the Minimax AI to choose the best move
-
-				chessboard.moveAChessman(move);
-				System.out.println("move "+chessboard.encodeMove(move));
-				chessboard.nextTurn();
+				chessEngine.stopNoise();
+				chessEngine.play();
+				chessEngine.startNoise();
 			}
 
 			if(command.startsWith("usermove"))
 			{
-				String[] mv = command.split(" ");
-				switch (mv.length)
-				{
-					case 1: break;
-					case 2: chessboard.moveAChessman(chessboard.decodeMove(mv[1])); break;
-				}
-				chessboard.nextTurn();
-
-				//ArrayList<Move>  allmoves = chessboard.genAllMoves(chessboard.getSideToPlay(), true);
-				//Move move = allmoves.get((int)Math.random() * ( allmoves.size())+1); //TODO Change this with a true AI engine
-				/* Comment the two lines above and uncomment the two lines below to test on Arena with Minimax */
-				MinimaxAI minimaxAI = new MinimaxAI();
-				Move move = minimaxAI.alphaBetaMinimaxSearch(chessboard); // Calling the Minimax AI to choose the best move
-				chessboard.moveAChessman(move);
-				System.out.println("move "+chessboard.encodeMove(move));
-				chessboard.nextTurn();
-
-				//System.out.println("#\n"+chessboard);
+				chessEngine.stopNoise();
+				chessEngine.updateBoard(command);
+				chessEngine.play();
+				chessEngine.startNoise();
 			}
-
+			
+			if(command.contentEquals("stop"))
+			{
+				chessEngine.stopNoise();
+			}
 		}
 	}
 }

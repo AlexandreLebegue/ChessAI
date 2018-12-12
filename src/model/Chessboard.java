@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Chessboard {
 
@@ -33,6 +34,8 @@ public class Chessboard {
  
 	private ArrayList<Chessman[]> history ; //History of moves played	
 	
+	private boolean checkmate = false;
+	
 	/*
 	 * Initialization
 	 */
@@ -42,6 +45,21 @@ public class Chessboard {
 		history = new ArrayList<Chessman[]>();
 		history.add(this.cells.clone());
 	}
+	
+	
+	
+	
+	
+	public Chessboard(Chessman[] cells, String sideToPlay) {
+		//System.out.println("Chessboard generation...");
+		setSideToPlay(sideToPlay);
+		history = new ArrayList<Chessman[]>();
+		this.cells = cells;
+		history.add(this.cells.clone());
+	}
+	
+	
+	
 	
 	
 	/**
@@ -75,35 +93,65 @@ public class Chessboard {
 	// Methods :
 	
 	
-	/*
+	/**
 	 * Generate all moves for a side 
+	 * @param camp
+	 * @param computeForCurrentSideToPlay true if we are looking for our possible moves, false if we just need the moves of the opponent (this avoids StackOverflowException when checking if our king is checked)
+	 * @return
 	 */
-	public ArrayList<Move> genAllMoves(String camp) {		
-		ArrayList<Move> rslt = new ArrayList<Move>(); 
+	public ArrayList<Move> genAllMoves(String camp, boolean computeForCurrentSideToPlay) {		
+		ArrayList<Move> allMoves = new ArrayList<Move>(); 
 		int position = 0;
 		for(Chessman chessman : cells)
 		{
-			if (chessman.getColor().equals(camp)) {
-
-				switch (chessman.getName()) {
+			if (chessman.getColor().equals(camp))
+			{
 				
-				case "king":
-					rslt.addAll(chessman.getKingMovements(position, oppositeColor(camp), this, false));	break;
-				case "queen":
-					rslt.addAll(chessman.getQueenMovements(position, oppositeColor(camp), this));break;
-				case "rook":
-					rslt.addAll(chessman.getRookMovements(position, oppositeColor(camp), this));break;
-				case "bishop":
-					rslt.addAll(chessman.getBishopMovements(position, oppositeColor(camp), this));break;
-				case "knight":
-					rslt.addAll(chessman.getKnightMovements(position, oppositeColor(camp), this));break;
-				case "pawn":
-					rslt.addAll(chessman.getPawnMovements(position, oppositeColor(camp), this));break;	
-				}	
+				switch (chessman.getName())
+				{
+					case "king":
+						allMoves.addAll(chessman.getKingMovements(position, oppositeColor(camp), this, false));	break;
+					case "queen":
+						allMoves.addAll(chessman.getQueenMovements(position, oppositeColor(camp), this)); break;
+					case "rook":
+						allMoves.addAll(chessman.getRookMovements(position, oppositeColor(camp), this)); break;
+					case "bishop":
+						allMoves.addAll(chessman.getBishopMovements(position, oppositeColor(camp), this)); break;
+					case "knight":
+						allMoves.addAll(chessman.getKnightMovements(position, oppositeColor(camp), this)); break;
+					case "pawn":
+						allMoves.addAll(chessman.getPawnMovements(position, oppositeColor(camp), this)); break;	
+				}
 			}
 			position++;	
 		}
-		return rslt;
+		
+		// Remove from the list of moves, all moves that will conduct the king to be checked
+		if(computeForCurrentSideToPlay)
+		{
+			Chessboard copyChessboard = new Chessboard(this, this.sideToPlay);
+			Iterator<Move> iterator = allMoves.iterator();
+			while(iterator.hasNext())
+			{
+				Move move = iterator.next();
+				copyChessboard.moveAChessman(move);
+				if(copyChessboard.isKingcheck())
+					iterator.remove(); // When the king is checked, a movement which does not "uncheck" the king is not authorized
+				copyChessboard.cancelLastMove();
+			}
+		}
+		
+		// Update boolean value indicating if there is a checkmate
+		if(allMoves.isEmpty()) checkmate = true;
+		
+		/*System.out.println("Possible moves = ");
+		for(Move move : allMoves)
+		{
+			System.out.println(move.toString());
+		}*/
+		
+		
+		return allMoves;
 	}
 	
 	
@@ -122,7 +170,7 @@ public class Chessboard {
 		else
 			cells[move.getEnd()] = chessmanCopy;
 		
-		System.out.println("#"+chessmanCopy.getName() + " moved " + coords[move.getStart()] +" to " + coords[move.getEnd()]);
+		//System.out.println("#"+chessmanCopy.getName() + " moved " + coords[move.getStart()] +" to " + coords[move.getEnd()]);
 		
 		
 		// We add the new configuration of cells in history
@@ -150,7 +198,7 @@ public class Chessboard {
 			if(move.getStart()>=8 && move.getStart()<= 15) { //if is at starting point
 				if(move.getEnd()>=24 && move.getEnd()<= 31) {
 					nbEnPassant = move.getEnd()-8; //one case before
-					System.out.println("#EnPassant is possible in "+ coords[nbEnPassant]);
+					//System.out.println("#EnPassant is possible in "+ coords[nbEnPassant]);
 				}					
 			} 
 			break;
@@ -159,7 +207,7 @@ public class Chessboard {
 			if(move.getStart()>=48 && move.getStart()<= 55) { //if is at starting point
 				if(move.getEnd()>=32 && move.getEnd()<= 39) {
 					nbEnPassant = move.getEnd()+8; //one case before
-					System.out.println("#EnPassant is possible in "+ coords[nbEnPassant]);
+					//System.out.println("#EnPassant is possible in "+ coords[nbEnPassant]);
 				}					
 			} 
 			break;
@@ -227,13 +275,13 @@ public class Chessboard {
 	
 	public void displayHistoryMoves() {
 		
-		System.out.println("#Affichage de l'historique");
+		//System.out.println("#Affichage de l'historique");
 		
-		for(Chessman[] hystoryCells : history) {
+		for(Chessman[] historyCells : history) {
 			int j = 1;
 			String result = "";
-			for(int i = 0; i<hystoryCells.length; i++) {
-				result += hystoryCells[i].getName().toUpperCase().charAt(0) +""+hystoryCells[i].getColor().charAt(0)+ ", ";
+			for(int i = 0; i<historyCells.length; i++) {
+				result += historyCells[i].getName().toUpperCase().charAt(0) +""+historyCells[i].getColor().charAt(0)+ ", ";
 				if(j == 8) {
 					j = 1;
 					result += "\n";
@@ -254,24 +302,23 @@ public class Chessboard {
 	 * @return: is attacked or not
 	 */
 	public boolean isChessmanAttacked(int index, String opponentColor) {
-		
-		ArrayList<Move> ennemiesMove = this.genAllMoves(opponentColor);
+		ArrayList<Move> ennemiesMove = this.genAllMoves(opponentColor, false);
 		for(Move move : ennemiesMove) {
 			if(move.getEnd() == index)
-				return true;
+				return true; 
 		}
 		
 		return false;
 	}
 	
-	public boolean isKingcheck(String color) {
+	public boolean isKingcheck() {
 		int i;
 		for(i = 0; i<64;i++) {
-			if(cells[i].getName().equals("king"))
+			if(cells[i].getName().equals("king") && cells[i].getColor().equals(sideToPlay))
 				break;
 		}
 		
-		return this.isChessmanAttacked(i, color);
+		return this.isChessmanAttacked(i, this.oppositeColor(sideToPlay));
 	}
 	
 	/*
@@ -330,8 +377,10 @@ public class Chessboard {
 	public void setCells(Chessman[] cells) {this.cells = cells;}
 	
 
-	//public ArrayList<Move> getHistory() { return history; }
 	public ArrayList<Chessman[]> getHistory() { return history; } 
+	
+	public boolean isCheckmate() { return checkmate; }
+	
 	
 	public String getSideToPlay() {	return sideToPlay;}
 	public void setSideToPlay(String sideToPlay) {this.sideToPlay = sideToPlay;	}	

@@ -38,7 +38,7 @@ public class WinboardCom {
 
 			if(command.contentEquals("go"))
 			{
-				//ArrayList<Move> allmoves = chessboard.genAllMoves(chessboard.getSideToPlay());
+				//ArrayList<Move> allmoves = chessboard.genAllMoves(chessboard.getSideToPlay(), true);
 				//Move move = allmoves.get((int)Math.random() * ( allmoves.size())+1);
 				/* Comment the two lines above and uncomment the two lines below to test on Arena with Minimax */
 				MinimaxAI minimaxAI = new MinimaxAI();
@@ -59,7 +59,7 @@ public class WinboardCom {
 				}
 				chessboard.nextTurn();
 
-				//ArrayList<Move>  allmoves = chessboard.genAllMoves(chessboard.getSideToPlay());
+				//ArrayList<Move>  allmoves = chessboard.genAllMoves(chessboard.getSideToPlay(), true);
 				//Move move = allmoves.get((int)Math.random() * ( allmoves.size())+1); //TODO Change this with a true AI engine
 				/* Comment the two lines above and uncomment the two lines below to test on Arena with Minimax */
 				MinimaxAI minimaxAI = new MinimaxAI();
@@ -68,7 +68,7 @@ public class WinboardCom {
 				System.out.println("move "+chessboard.encodeMove(move));
 				chessboard.nextTurn();
 
-				System.out.println("#\n"+chessboard);
+				//System.out.println("#\n"+chessboard);
 			}
 
 		}

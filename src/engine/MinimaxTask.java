@@ -1,64 +1,114 @@
-package model;
+package engine;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+
+import model.Chessboard;
+import model.Chessman;
+import model.Move;
 
 /**
- * This class performs the Minimax algorithm with alpha-beta pruning,
- * to determine the best move to play next
- * @author Camille De Pinho on 2018/12/10
- * @version Last changes on 2018/12/12 at 00h06 by Camille De Pinho
+ * This class represents a Task performing an iterative deepening version of
+ * the Minimax algorithm with alpha-beta pruning, to determine the best move to play next
+ * The iterative deepening process ensures us to have a best move to retrieve after timeout,
+ * no matter how deep we went in the Minimax tree
+ * @author Camille De Pinho on 2018/12/12
+ * @version Last changes on 2018/12/13 at 01h04 by Camille De Pinho
  */
-public class MinimaxAI
+public class MinimaxTask implements Callable<MinimaxIterationResult>
 {
-	/*
-	 * TODO RESTE A FAIRE:
-	 * - Ajouter un cutoff de temps (un peu moins d'1s)
-	 * - Ajouter multithreading
-	 * - Améliorer la fonction d'utilité (prendre en compte de nouveaux paramètres)
-	 * - Si besoin, optimiser/améliorer l'implémentation de la Triangular PV Table
-	 */
-	
 	private static int BONUS_CHECKMATE = 1000;
 	private static int MALUS_CHECKMATE = -1000;
+	private int iterativeDeepeningLimit; // Limit for the iterative deepening process
 	
-	public static int MAX_STEPS = 4; // For test purposes
+	private Chessboard chessboard;
+	private List<Move> firstPossibleMoves;
 	private int depth = -1; // Current depth of the Minimax tree
+	private final ExecutorService executorService; // ExecutorService, which will be used to start the next iteration
 	
 	// Memorize our color and the color of the opponent (which will be used in the utility function)
 	private String ourColor;
 	private String opponentColor;
-
-	private Move[] bestMoves = new Move[MAX_STEPS]; // "Simplified" implementation of the Triangular PV Table
+	
+	// Keep a trace of the best move found so far, and its utility value
+	private Move[] currentBestMoves;
+	private Integer currentBestValue;
+	
+	
+	public MinimaxTask(Chessboard chessboard, List<Move> moves, int maximumDepth, ExecutorService xs)
+	{
+		this.chessboard = chessboard;
+		this.firstPossibleMoves = moves;
+		this.iterativeDeepeningLimit = maximumDepth;
+		this.currentBestMoves = new Move[iterativeDeepeningLimit];
+		ourColor = chessboard.getSideToPlay();
+		opponentColor = chessboard.oppositeColor(ourColor);
+		this.executorService = xs;
+	}
+	
+	@Override
+	public MinimaxIterationResult call() throws Exception
+	{
+		currentBestValue = firstMaxValue(chessboard, Integer.MIN_VALUE, Integer.MAX_VALUE);
+		/*System.out.println("For task " + this.toString() + " - Best moves are :");
+		for(int i=0 ; i<currentBestMoves.length - 1 ; i++)
+		{
+			if(currentBestMoves[i] != null) System.out.println("#" + i + " " + currentBestMoves[i].toString());
+		}
+		System.out.println("#");*/
+		return new MinimaxIterationResult(this.currentBestMoves[0], this.currentBestValue,
+			executorService.submit(new MinimaxTask(chessboard, firstPossibleMoves, iterativeDeepeningLimit + 1, executorService))); // Next iteration of iterative deepening
+	}
 	
 	
 	/**
-	 * Execute the Minimax algorithm with alpha-beta pruning, to retrieve the best next move
-	 * @param chessboard The current state of the chessboard
-	 * @return The next move to execute
+	 * This method is the same as maxValue, excepted that she does not start with 
+	 * all possible moves for the current chessboard, but only with the moves
+	 * this parallel task has been associated to
+	 * @param chessboard
+	 * @param alpha
+	 * @param beta
+	 * @return The best utility value
 	 */
-	public Move alphaBetaMinimaxSearch(Chessboard chessboard)
+	private int firstMaxValue(Chessboard chessboard, int alpha, int beta)
 	{
-		ourColor = chessboard.getSideToPlay();
-		opponentColor = chessboard.oppositeColor(ourColor);
-		long start = System.nanoTime();
-		//System.out.println("#Starting Minimax...");
-		/*int utilityValue = */maxValue(new Chessboard(chessboard, ourColor), Integer.MIN_VALUE, Integer.MAX_VALUE);
-		long end = System.nanoTime();
-		long time = (end - start) / 1000000; // Nanoseconds to milliseconds
-		/*System.out.println("#Finished Minimax in " + time + "ms - Tree of best moves");
-		for(int i=0 ; i<bestMoves.length - 1 ; i++)
-		{
-			if(bestMoves[i] != null) System.out.println("#" + i + " " + bestMoves[i].toString());
-		}
-		System.out.println("#");*/
-		return bestMoves[0];
+		depth++;
+		/*System.out.println("#\nDepth = " + depth + " - MAX");
+		System.out.println("#" + chessboard.toString() + "\n");*/
 		
-		/* INFO: niveau timing, en single-threaded, on est à environ:
-		 * - une demi-seconde pour descendre jusqu'au niveau 4 de l'arbre d'exploration
-		 * - 5 secondes pour descendre jusqu'au niveau 5
-		 */
+		// Here we do not compute all possible moves, we start from the partial list of moves that this task has been associated to
+		if (Thread.currentThread().isInterrupted() || MinimaxAI.terminalTest(chessboard) || (depth >= iterativeDeepeningLimit-1)) { depth--; return utility(chessboard); }
+		int utilityValue = Integer.MIN_VALUE;
+		
+		for (Move possibleMove : firstPossibleMoves)
+		{
+			if(Thread.currentThread().isInterrupted()) break;
+			//System.out.println("#MAX - Studied move = " + possibleMove.toString() + " - calling MINVALUE");
+			chessboard.moveAChessman(possibleMove);
+			chessboard.nextTurn();
+			int min = minValue(chessboard, alpha, beta);
+			utilityValue = Math.max(utilityValue, min);
+			//System.out.println("#Cancel move: ");
+			chessboard.cancelLastMove();
+			
+			if(utilityValue > beta) { depth--; return utilityValue; }
+			if(utilityValue > alpha)
+			{
+				alpha = utilityValue;
+				// Update the best move for this depth
+				currentBestMoves[depth] = possibleMove;
+				//System.out.println("#MAX - Changed best move at depth " + depth + " : " + possibleMove.toString());
+			} // else alpha's value does not change
+			
+			//System.out.println("#In MAX alpha-beta for depth " + depth + " and move " + possibleMove.toString() + " : alpha=" + alpha + " ; beta=" + beta);
+		}
+		depth--;
+		return utilityValue;
 	}
 	
+
 	/**
 	 * max_value function for Minimax algorithm
 	 * @param chessboard
@@ -73,11 +123,12 @@ public class MinimaxAI
 		System.out.println("#" + chessboard.toString() + "\n");*/
 		
 		ArrayList<Move> allmoves = chessboard.genAllMoves(chessboard.getSideToPlay(), true); // Also updates the checkmate boolean, that is why we compute it here
-		if (terminalTest(chessboard) || (depth >= MAX_STEPS-1)) { depth--; return utility(chessboard); }
+		if (Thread.currentThread().isInterrupted() || MinimaxAI.terminalTest(chessboard) || (depth >= iterativeDeepeningLimit-1)) { depth--; return utility(chessboard); }
 		int utilityValue = Integer.MIN_VALUE;
 		
 		for (Move possibleMove : allmoves)
 		{
+			if(Thread.currentThread().isInterrupted()) break;
 			//System.out.println("#MAX - Studied move = " + possibleMove.toString() + " - calling MINVALUE");
 			chessboard.moveAChessman(possibleMove);
 			chessboard.nextTurn();
@@ -91,7 +142,7 @@ public class MinimaxAI
 			{
 				alpha = utilityValue;
 				// Update the best move for this depth
-				bestMoves[depth] = possibleMove;
+				currentBestMoves[depth] = possibleMove;
 				//System.out.println("#MAX - Changed best move at depth " + depth + " : " + possibleMove.toString());
 			} // else alpha's value does not change
 			
@@ -114,11 +165,12 @@ public class MinimaxAI
 		/*System.out.println("#\nDepth = " + depth + " - MIN");
 		System.out.println("#" + chessboard.toString() + "\n");*/
 		ArrayList<Move> allmoves = chessboard.genAllMoves(chessboard.getSideToPlay(), true); // Also updates the checkmate boolean, that is why we compute it here
-		if (terminalTest(chessboard) || (depth >= MAX_STEPS-1)) { depth--; return utility(chessboard); }
+		if (Thread.currentThread().isInterrupted() || MinimaxAI.terminalTest(chessboard) || (depth >= iterativeDeepeningLimit-1)) { depth--; return utility(chessboard); }
 		int utilityValue = Integer.MAX_VALUE;
 		
 		for (Move possibleMove : allmoves)
 		{
+			if(Thread.currentThread().isInterrupted()) break;
 			//System.out.println("#MIN - Studied move = " + possibleMove.toString() + " - calling MAXVALUE");
 			chessboard.moveAChessman(possibleMove);
 			chessboard.nextTurn();
@@ -133,7 +185,7 @@ public class MinimaxAI
 			{
 				beta = utilityValue;
 				// Update the best move for this depth
-				bestMoves[depth] = possibleMove;
+				currentBestMoves[depth] = possibleMove;
 				//System.out.println("#MIN - Changed best move at depth " + depth + " : " + possibleMove.toString());
 			} // else beta's value does not change
 			
@@ -144,12 +196,10 @@ public class MinimaxAI
 	}
 	
 	
-	
-	// TODO: Améliorer cette fonction
-	// (Pour l'instant, elle ne tient compte que des poids des pions restants sur le plateau)
 	/**
 	 * Computes the utility of a chessboard, taking into account:
 	 * - the weights of the pieces on the board
+	 * - the possibilities of rooking
 	 * - [TO BE CONTINUED...]
 	 * @param chessboard
 	 * @return The utility of this board
@@ -176,7 +226,7 @@ public class MinimaxAI
 		ArrayList<Move> opponentMoves = chessboard.genAllMoves(opponentColor, true);
 		if(opponentMoves.isEmpty()) utility += BONUS_CHECKMATE; // Checkmate in our favor!
 		if(chessboard.isCheckmate()) utility += MALUS_CHECKMATE; // Checkmate in favor of the opponent!
-		
+				
 		// Put a bonus if we can rook
 		if (ourColor == "white") {
 			if (chessboard.isRookCanCastle63() == true) utility += 1;
@@ -186,29 +236,15 @@ public class MinimaxAI
 			if (chessboard.isRookCanCastle56() == true) utility += 1;
 			if (chessboard.isRookCanCastle7() == true) utility += 1;
 		}
-		
+				
 		/*System.out.println("Utility for chessboard - " + chessboard.getSideToPlay() + " playing");
 		System.out.println(chessboard.toString());
 		System.out.println(utility);*/
-		
+				
 		return utility;
 	}
 	
+	public Move getBestMove() { return this.currentBestMoves[0]; }
+	public int getBestValue() { return this.currentBestValue; }
 	
-
-	// TODO: retourner vrai si "échec et mat" pour noir OU blanc, sinon faux
-	/**
-	 * @param chessboard
-	 * @return true if there is a checkmate (end of the game), else false
-	 */
-	private boolean terminalTest(Chessboard chessboard)
-	{
-		 return chessboard.isCheckmate();
-	}
-	
-	
-	/*private Move chooseBestMove(int bestUtilityValue)
-	{
-		
-	}*/
 }

@@ -3,7 +3,6 @@ package engine;
 import java.util.ArrayList;
 
 import model.Chessboard;
-import model.MinimaxAI;
 import model.Move;
 
 public class Engine {

@@ -32,16 +32,11 @@ public class MinimaxAI
 	public Move alphaBetaMinimaxSearch(Chessboard chessboard)
 	{
 		long start = System.nanoTime();
-		//System.out.println("#Starting Minimax...");
+		//System.out.println("Starting Minimax...");
 		Move bestMove = runTasks(chessboard, start);//(new Chessboard(chessboard, ourColor));
 		/*long end = System.nanoTime();
 		long time = (end - start) / 1000000; // Nanoseconds to milliseconds
-		System.out.println("#Finished Minimax in " + time + "ms - Tree of best moves");
-		for(int i=0 ; i<bestMoves.length - 1 ; i++)
-		{
-			if(bestMoves[i] != null) System.out.println("#" + i + " " + bestMoves[i].toString());
-		}
-		System.out.println("#");*/
+		System.out.println("Finished Minimax in " + time + "ms");*/
 		return bestMove;
 	}
 	
@@ -88,8 +83,13 @@ public class MinimaxAI
 			{
 				try
 				{
+					//System.out.println("Current best = " + bestMove + " with " + bestValue + " - Next move is: " + result.get().getBestMove() + " with value " + result.get().getBestValue());
 					if(result.get().getBestValue() > bestValue)
+					{
+						bestValue = result.get().getBestValue();
 						bestMove = result.get().getBestMove();
+					}
+						
 					result = result.get().getNextResult(); // Replace the current Future by the Future of the next iteration
 				}
 				catch(InterruptedException | ExecutionException e) { /* Nothing special to do */ }

@@ -330,7 +330,15 @@ public class Chessman {
 				if(chessboard.getCells()[n].getName() == "empty") {
 					
 					// Exception for promotion when a pawn comes to the enemy edge of board
-					if (n < 8) {
+					if (currentColor.equals("white" ) && n < 8) {
+						Move promotionQueen = new Move(posA, n, "queen");
+						Move promotionRook = new Move(posA, n, "rook");
+						Move promotionKnight = new Move(posA, n, "knight");
+						Move promotionBishop = new Move(posA, n, "bishop");
+						Collections.addAll(pawnMovements, promotionQueen, promotionRook, promotionKnight, promotionBishop);
+					}
+					else if(currentColor.equals("black") && n > 55)
+					{
 						Move promotionQueen = new Move(posA, n, "queen");
 						Move promotionRook = new Move(posA, n, "rook");
 						Move promotionKnight = new Move(posA, n, "knight");
@@ -417,7 +425,7 @@ public class Chessman {
 					
 					// Promotion of pawn
 					if (n > 55) {
-						Move promotionQueen = new Move(posA, n, "quenn");
+						Move promotionQueen = new Move(posA, n, "queen");
 						Move promotionRook = new Move(posA, n, "rook");
 						Move promotionKnight = new Move(posA, n, "knight");
 						Move promotionBishop = new Move(posA, n, "bishop");

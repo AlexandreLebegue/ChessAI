@@ -17,7 +17,7 @@ public class Engine {
 	}
 	
 	/*
-	 * Create new game, initialise new chess board
+	 * Create new game, initialize new chess board
 	 */
 	public void newGame() {
 		chessboard = new Chessboard();

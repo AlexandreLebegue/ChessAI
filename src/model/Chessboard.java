@@ -344,22 +344,32 @@ public class Chessboard {
 			return new Move(start, end);
 		}
 		else if(len == 5) {
-			return new Move(start, end, mov.substring(5, 5));
+			String promotion = "";
+			switch(mov.substring(4,5))
+			{
+				case "q": promotion = "queen"; break;
+				case "r": promotion = "rook"; break;
+				case "b": promotion = "bishop"; break;
+				case "k": promotion = "knight"; break;
+			}
+			return new Move(start, end, promotion);
 		}
 		
 		return null;
 	}
 	
+	
+	
 	/*
 	 * Format a move to WindBoard protocol
 	 * @param move: move to decode
-	 * @return: move formatted
+	 * @return: formatted move
 	 */
 	public String encodeMove(Move move) {
-		if(move.getPromotion()!= null) //if they are a promotion
+		if(move.getPromotion()!= null && !move.getPromotion().isEmpty()) //if there is a promotion
 			return (coords[move.getStart()]+""+coords[move.getEnd()]+""+move.getPromotion().charAt(0));
 		else //else
-			return (coords[move.getStart()]+""+coords[move.getEnd()]);//+""+move.getPromotion().charAt(0));
+			return (coords[move.getStart()]+""+coords[move.getEnd()]);
 	}
 	
 

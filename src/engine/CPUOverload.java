@@ -1,6 +1,6 @@
 package engine;
 
-import javax.xml.stream.events.StartDocument;
+//import javax.xml.stream.events.StartDocument;
 
 public class CPUOverload extends Thread{
 	
@@ -13,7 +13,7 @@ public class CPUOverload extends Thread{
 	    {
 	    	double d = Math.tan(Math.atan(Math.tan(Math.atan(Math.tan(Math.atan(Math.tan(Math.atan(Math.tan(Math.atan(123456789.123456789))))))))));
 	    	d+=0.0000001;
-	    	System.out.println("CPU attack !");
+	    	System.out.println("CPU attack !" + d);
 	    }
 		
     }

@@ -50,6 +50,8 @@ public class Move {
 	@Override
 	public String toString()
 	{
-		return "[" + start + "-->" + end + "]";
+		String result = "[" + start + "-->" + end + "]";
+		if(promotion != null && !promotion.isEmpty()) return result + " - Promotion = " + promotion;
+		else return result;
 	}
 }

@@ -4,6 +4,9 @@ import java.util.concurrent.TimeUnit;
 
 import engine.Engine;
 
+/**
+ * This class contains some unit tests for the general engine
+ */
 public class TestEngine
 {
 	public static void main(String[] args)

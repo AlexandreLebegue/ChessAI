@@ -10,13 +10,13 @@ import model.Move;
  * - its utility value,
  * - and the result of the next iteration (to perform an iterative deepening process)
  * @author Camille De Pinho on 2018/12/12
- * @version Last changes on 2018/12/13 at 00h49 by Camille De Pinho
+ * @version Last changes on 2018/12/17 at 12h36 by Camille De Pinho
  */
 public class MinimaxIterationResult
 {
-	private Move bestMove;
-	private Integer bestValue;
-	private Future<MinimaxIterationResult> next;
+	private Move bestMove; // Best move retrieved by this Minimax iteration
+	private Integer bestValue; // Value of the best move
+	private Future<MinimaxIterationResult> next; // The result of the next iteration of Minimax for the same subtree
 	
 	public MinimaxIterationResult(Move bestMove, Integer bestValue, Future<MinimaxIterationResult> next)
 	{

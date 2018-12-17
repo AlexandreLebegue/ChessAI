@@ -5,30 +5,28 @@ import java.util.ArrayList;
 import model.Chessboard;
 import model.Move;
 
-public class Engine {
-	
+/**
+ * This class is in charge of creating the engine and initializing the chessboard
+ */
+public class Engine
+{
 	private Chessboard chessboard;
 	private ArrayList<CPUOverload> cpuOverloads = new ArrayList<CPUOverload>();
-	private static int NUMBER_OF_THREAD = 64;
+	private static int NUMBER_OF_THREADS = 64;
 	
 	
-	public Engine() {
-		chessboard = new Chessboard();	
-	}
+	public Engine() { chessboard = new Chessboard(); }
 	
-	/*
-	 * Create new game, initialize new chess board
+	/**
+	 * Create new game and initialize new chessboard
 	 */
-	public void newGame() {
-		chessboard = new Chessboard();
-
-	}
+	public void newGame() { chessboard = new Chessboard(); }
 	
-	/*
+	/**
 	 * Play one turn
 	 */
-	public void play() {
-		
+	public void play()
+	{
 		MinimaxAI minimaxAI = new MinimaxAI();
 		Move move = minimaxAI.alphaBetaMinimaxSearch(chessboard); // Calling the Minimax AI to choose the best move
 		
@@ -36,15 +34,14 @@ public class Engine {
 		chessboard.nextTurn();
 		
 		System.out.println("move "+chessboard.encodeMove(move));
-
 	}
 	
-	/*
+	/**
 	 * Update current board with the move of the opponent
 	 * @param move to update
 	 */
-	public void updateBoard(String move) {
-		
+	public void updateBoard(String move)
+	{
 		String[] mv = move.split(" ");
 		switch (mv.length)
 		{
@@ -57,30 +54,34 @@ public class Engine {
 	}
 	
 	
-	/*
-	 * Start to do lot of calculation to allow less CPU to the opponent
+	/**
+	 * Start doing lots of calculation to allow less CPU to the opponent
 	 */
-	public void startNoise() {
+	public void startNoise()
+	{
 		stopNoise();
 		cpuOverloads.clear();
-		for(int i = 0; i<NUMBER_OF_THREAD; i++) {
+		for(int i = 0; i<NUMBER_OF_THREADS; i++)
+		{
 			cpuOverloads.add(new CPUOverload());
 		}
 		
-		for(CPUOverload cpuload : cpuOverloads) {
+		for(CPUOverload cpuload : cpuOverloads)
+		{
 			cpuload.start();
 			cpuload.goThread();
 		}
 	}
 	
-	/*
+	/**
 	 * Stop CPU opponent Noise
 	 */
-	public void stopNoise() {
-		for(CPUOverload cpuload : cpuOverloads) {
+	public void stopNoise()
+	{
+		for(CPUOverload cpuload : cpuOverloads)
+		{
 			cpuload.stopThread();
 		}
-		
 	}
 	
 }

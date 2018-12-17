@@ -1,6 +1,10 @@
 package model;
 
-public class Move {
+/**
+ * This class represents a move of a chessman
+ */
+public class Move
+{
 	// Attributes
 	private int start;
 	private int end;

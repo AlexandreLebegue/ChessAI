@@ -3,11 +3,14 @@ package model;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Chessman {
-	
-	private String name;
-	private String color;
-	private int value;
+/**
+ * This class represents a chess piece
+ */
+public class Chessman
+{
+	private String name; // king, queen, bishop, rook, knight, pawn
+	private String color; // black or white
+	private int value; // position of the piece
 	
 	//int n = tab120[tab64[posA] + direction];
 	// Mailboxes tab120 and tab64 according to method "mail box" from Robert Hyatt to prevent out of range
@@ -39,15 +42,18 @@ public class Chessman {
 	private int[] knightDirections = {-12, -21, -19, -8, 12, 21, 19, 8};
 	private int[] royalDirections = {-11, -10, -9, -1, 1, 9, 10, 11};
 	
-	//Constructor
 	
-	public Chessman(String name, String color) {
+	/**
+	 * Constructor
+	 * @param name
+	 * @param color
+	 */
+	public Chessman(String name, String color)
+	{
 		this.name = name;
 		this.color = color;
 		this.setValue(this.name);
 	}
-	
-	
 	
 	
 	@Override
@@ -55,12 +61,12 @@ public class Chessman {
 	{
 		return this.name + " (" + this.color + ") - in position " + this.value;
 	}
+
+
+	// Getters & setters
 	
-	
-	
-	//Getters, setters...
-	
-	private void setValue(String name) {
+	private void setValue(String name)
+	{
 		ArrayList<String> chessmanNames	= new ArrayList<String>();
 		Collections.addAll(chessmanNames, "empty","pawn","knight", "bishop","rook", "queen","king");
 		ArrayList<Integer> chessmanValues	= new ArrayList<Integer>();
@@ -76,7 +82,9 @@ public class Chessman {
 	public void setColor(String color) {this.color = color;}
 	public int getValue(){return value;}
 
+	
 	// Methods
+	
 	
 	/**
 	 * Returns the list of moves for the king
@@ -87,13 +95,8 @@ public class Chessman {
 	 * @dontCallIsAttacked: to avoid recursive calls
 	 * @return
 	 */
-	public ArrayList<Move> getKingMovements(int posA, String opponentColor, Chessboard chessboard, boolean dontCallIsAttacked) {
-		/*
-		if (dontCallIsAttacked == null) {
-			dontCallIsAttacked = false;
-		}
-		*/
-		
+	public ArrayList<Move> getKingMovements(int posA, String opponentColor, Chessboard chessboard, boolean dontCallIsAttacked)
+	{
 		ArrayList<Move> kingMoves = new ArrayList<Move>();
 		
 		for (int i = 0; i < royalDirections.length; i++) {
@@ -102,7 +105,7 @@ public class Chessman {
 			
 			// If we are not out of range
 			if (n != -1) {
-				// We append a movement if the case is empty or got an opponent chessman
+				// We append a movement if the case is empty or contains an opponent chessman
 				if(chessboard.getCells()[n].getName() == "empty" || chessboard.getCells()[n].color == opponentColor) {
 					Move newMove = new Move(posA, n);
 					kingMoves.add(newMove);
@@ -110,7 +113,7 @@ public class Chessman {
 			}
 		}
 		
-		// We just keep attacks moves
+		// We just keep attack moves
 		if (dontCallIsAttacked == true) {
 			return (kingMoves);
 		}
@@ -248,7 +251,7 @@ public class Chessman {
 			// If not out of range
 			if (n != -1) {
 				
-				// Add move if cell is empty or got an enemy chessman
+				// Add move if cell is empty or contains an enemy chessman
 				if(chessboard.getCells()[n].getName() == "empty" || chessboard.getCells()[n].getColor() == opponentColor) {
 					Move newMove = new Move(posA, n);
 					knightMovements.add(newMove);
@@ -280,7 +283,7 @@ public class Chessman {
 				n = tab120[tab64[posA] + (bishopDirections[i] * j)];
 				// If not out of range
 				if (n != -1) {
-					// We add a move if the cell is empty or got an enemy chessman
+					// We add a move if the cell is empty or contains an enemy chessman
 					if(chessboard.getCells()[n].getName() == "empty" || chessboard.getCells()[n].getColor() == opponentColor) {
 						Move newMove = new Move(posA, n);
 						bishopMovements.add(newMove);
@@ -304,7 +307,7 @@ public class Chessman {
 	}
 	
 	/**
-	 * Returns the move of a queen
+	 * Returns the moves of a queen
 	 * @param posA: starting point
 	 * @param opponentColor: the color of the opponent
 	 * @param chessboard: the chess board of the game
@@ -380,7 +383,7 @@ public class Chessman {
 				// If there is an opponent chessman in the upper left cell
 				if(chessboard.getCells()[n].getColor() == opponentColor || chessboard.getNbEnPassant() == n) {
 					
-					// If pawn arrival is edge of the upper board it gets promoted after k-k-killing spree
+					// If pawn arrival is edge of the upper board it gets promoted after killing spree
 					if(n < 8) {
 						Move promotionQueen = new Move(posA, n, "queen");
 						Move promotionRook = new Move(posA, n, "rook");
@@ -404,7 +407,7 @@ public class Chessman {
 				// If there is an opponent chessman in the upper right cell
 				if(chessboard.getCells()[n].getColor() == opponentColor || chessboard.getNbEnPassant() == n) {
 					
-					// If pawn arrival is edge of the upper board it gets promoted after k-k-killing spree
+					// If pawn arrival is edge of the upper board it gets promoted after killing spree
 					if(n < 8) {
 						Move promotionQueen = new Move(posA, n, "queen");
 						Move promotionRook = new Move(posA, n, "rook");
@@ -507,8 +510,5 @@ public class Chessman {
 		
 		return pawnMovements;
 	}
-	
-	
-	
 
 }

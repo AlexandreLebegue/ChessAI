@@ -16,24 +16,23 @@ import model.Move;
  * This class runs several tasks to dispatch the possible next movements between CPU cores,
  * so that they can each apply the Minimax algorithm on a subtree of the initial problem
  * @author Camille De Pinho on 2018/12/10
- * @version Last changes on 2018/12/17 at 12h09 by Camille De Pinho
+ * @version Last changes on 2018/12/17 at 12h35 by Camille De Pinho
  */
 public class MinimaxAI
 {
-	private static int TIMEOUT_MS = 900; // Un peu moins d'une seconde, pour laisser le temps de combiner les resultats des threads
-	
+	private static int TIMEOUT_MS = 900; // A little less than one second to let a little time to combine the results of the threads
 	
 	/**
 	 * Execute the Minimax algorithm with alpha-beta pruning, to retrieve the best next move
 	 * It divides the tree into several subtrees, depending on the number of possible next moves,
-	 * and then it creates several tasks to execute on parallel the resulting subtrees
+	 * and then it creates several tasks for the resulting subtrees to execute Minimax on parallel
 	 * @param chessboard The current state of the chessboard
 	 * @return The next move to execute
 	 */
 	public Move alphaBetaMinimaxSearch(Chessboard chessboard)
 	{
-		long start = System.nanoTime();
 		//System.out.println("Starting Minimax...");
+		long start = System.nanoTime();
 		Move bestMove = runTasks(chessboard, start);
 		/*long end = System.nanoTime();
 		long time = (end - start) / 1000000; // Nanoseconds to milliseconds
@@ -56,10 +55,11 @@ public class MinimaxAI
 		// Cached pool allows us to reuse some threads if possible, which could be useful in future versions to have better performances
 		ExecutorService executorService = Executors.newCachedThreadPool();
 		
-		// Dispatch the possible moves between several tasks
+		// Dispatch the possible moves between several tasks as equally as possible
 		ArrayList<List<Move>> partitions = new ArrayList<List<Move>>();
 		int parts = 8;
-		for (int i = 0; i < parts; i++) {
+		for (int i = 0; i < parts; i++)
+		{
 		    List<Move> part = allmoves.subList(i * allmoves.size() / parts,
 		                                     (i + 1) * allmoves.size() / parts);
 		    partitions.add(part);
@@ -78,19 +78,23 @@ public class MinimaxAI
 				futureResults.add(ft);
 			}
 		}
+		// This loop started the first iterations of the Minimax tree with a depth of 3
+		// Then, each finished task will call by itself the next iteration for the subtree it has been given
+		// (see MinimaxTask class)
 		
+		// Retrieve the results while there is still some time left
 		int bestValue = Integer.MIN_VALUE;
 		Move bestMove = null;
 		while(true)
 		{
-			ArrayList<Future<MinimaxIterationResult>> nextResults = new ArrayList<>();
+			ArrayList<Future<MinimaxIterationResult>> nextResults = new ArrayList<>(); // Contains the Future objects for the next iterations' results
 			Iterator<Future<MinimaxIterationResult>> iterator = futureResults.iterator();
 			while(iterator.hasNext())
 			{
 				Future<MinimaxIterationResult> result = iterator.next();
 				try
 				{
-					MinimaxIterationResult minimaxResult = result.get();
+					MinimaxIterationResult minimaxResult = result.get(); // Get the result of the task
 					Move move = minimaxResult.getBestMove();
 					Integer value = minimaxResult.getBestValue();
 					//System.out.println("Current best = " + bestMove + " with " + bestValue + " - Next move is: " + move.toString() + " with value " + value);
@@ -100,7 +104,8 @@ public class MinimaxAI
 						bestMove = move;
 					}
 						
-					nextResults.add(minimaxResult.getNextResult());
+					nextResults.add(minimaxResult.getNextResult()); // Add the Future object for the next iteration result,
+																	// so that we can retrieve it when it will be finished
 					iterator.remove();
 				}
 				catch(InterruptedException | ExecutionException e) { /* Nothing special to do */ }
@@ -111,7 +116,7 @@ public class MinimaxAI
 			{
 				executorService.shutdownNow(); // Close the pool and interrupt all running tasks
 				
-				if (bestMove != null) System.out.println("BEST = " + bestMove.toString() + " with " + bestValue);
+				//if (bestMove != null) System.out.println("Best move = " + bestMove.toString() + " with " + bestValue);
 				if(bestMove != null)
 					return bestMove;
 				else // a strange error might have occurred, so we return an arbitrary possible movement to avoid abandoning
@@ -121,6 +126,7 @@ public class MinimaxAI
 	}
 	
 	/**
+	 * Tests if the game is over (that is to say if the king of the current player is in checkmate)
 	 * @param chessboard
 	 * @return true if there is a checkmate (end of the game), else false
 	 */

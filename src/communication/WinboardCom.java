@@ -6,12 +6,14 @@ import java.io.InputStreamReader;
 
 import engine.Engine;
 
-public class WinboardCom {
-
-	public static void main(String[] args) throws IOException {
-
+/**
+ * This class performs the communication with Arena platform
+ */
+public class WinboardCom
+{
+	public static void main(String[] args) throws IOException
+	{
 		Engine chessEngine = new Engine();
-
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
 		while(true) // Endless loop
@@ -20,7 +22,7 @@ public class WinboardCom {
 
 			if(command.equals("protover 2"))
 			{
-				System.out.println("feature usermove=1");	//append username to move command received from winboard
+				System.out.println("feature usermove=1");	// append username to move command received from winboard
 			}
 
 			if(command.contentEquals("new"))

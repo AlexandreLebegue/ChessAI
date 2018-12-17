@@ -16,7 +16,7 @@ import model.Move;
  * This class runs several tasks to dispatch the possible next movements between CPU cores,
  * so that they can each apply the Minimax algorithm on a subtree of the initial problem
  * @author Camille De Pinho on 2018/12/10
- * @version Last changes on 2018/12/17 at 11h44 by Camille De Pinho
+ * @version Last changes on 2018/12/17 at 12h09 by Camille De Pinho
  */
 public class MinimaxAI
 {
@@ -81,7 +81,7 @@ public class MinimaxAI
 		
 		int bestValue = Integer.MIN_VALUE;
 		Move bestMove = null;
-		while((System.nanoTime() - startTime) / 1000000 < TIMEOUT_MS)
+		while(true)
 		{
 			ArrayList<Future<MinimaxIterationResult>> nextResults = new ArrayList<>();
 			Iterator<Future<MinimaxIterationResult>> iterator = futureResults.iterator();
@@ -90,31 +90,34 @@ public class MinimaxAI
 				Future<MinimaxIterationResult> result = iterator.next();
 				try
 				{
-						MinimaxIterationResult minimaxResult = result.get();
-						Move move = minimaxResult.getBestMove();
-						Integer value = minimaxResult.getBestValue();
-						//System.out.println("Current best = " + bestMove + " with " + bestValue + " - Next move is: " + move.toString() + " with value " + value);
-						if(value > bestValue)
-						{
-							bestValue = value;
-							bestMove = move;
-						}
-						
-						nextResults.add(minimaxResult.getNextResult());
-						iterator.remove();
+					MinimaxIterationResult minimaxResult = result.get();
+					Move move = minimaxResult.getBestMove();
+					Integer value = minimaxResult.getBestValue();
+					//System.out.println("Current best = " + bestMove + " with " + bestValue + " - Next move is: " + move.toString() + " with value " + value);
+					if(value > bestValue)
+					{
+						bestValue = value;
+						bestMove = move;
 					}
-					catch(InterruptedException | ExecutionException e) { /* Nothing special to do */ }				
+						
+					nextResults.add(minimaxResult.getNextResult());
+					iterator.remove();
+				}
+				catch(InterruptedException | ExecutionException e) { /* Nothing special to do */ }
 			}
 			futureResults.addAll(nextResults);
-		}
-		
-		executorService.shutdownNow(); // Close the pool and interrupt all running tasks
+			
+			if((System.nanoTime() - startTime) / 1000000 < TIMEOUT_MS) // We are running out of time, we have to stop
+			{
+				executorService.shutdownNow(); // Close the pool and interrupt all running tasks
 				
-		if (bestMove != null) System.out.println("BEST = " + bestMove.toString() + " with " + bestValue);
-		if(bestMove != null)
-			return bestMove;
-		else // a strange error might have occurred, so we return an arbitrary possible movement to avoid abandoning
-			return allmoves.get((int)Math.random() * (allmoves.size()) + 1);
+				if (bestMove != null) System.out.println("BEST = " + bestMove.toString() + " with " + bestValue);
+				if(bestMove != null)
+					return bestMove;
+				else // a strange error might have occurred, so we return an arbitrary possible movement to avoid abandoning
+					return allmoves.get((int)Math.random() * (allmoves.size()) + 1);
+			}
+		}
 	}
 	
 	/**

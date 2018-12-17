@@ -15,7 +15,7 @@ import model.Move;
  * The iterative deepening process ensures us to have a best move to retrieve after timeout,
  * no matter how deep we went in the Minimax tree
  * @author Camille De Pinho on 2018/12/12
- * @version Last changes on 2018/12/13 at 01h04 by Camille De Pinho
+ * @version Last changes on 2018/12/17 at 11h49 by Camille De Pinho
  */
 public class MinimaxTask implements Callable<MinimaxIterationResult>
 {
@@ -51,15 +51,17 @@ public class MinimaxTask implements Callable<MinimaxIterationResult>
 	@Override
 	public MinimaxIterationResult call() throws Exception
 	{
+		Chessboard copyChessboard = new Chessboard(chessboard, chessboard.getSideToPlay()); 
 		currentBestValue = firstMaxValue(chessboard, Integer.MIN_VALUE, Integer.MAX_VALUE);
+		
 		/*System.out.println("For task " + this.toString() + " - Best moves are :");
 		for(int i=0 ; i<currentBestMoves.length - 1 ; i++)
 		{
-			if(currentBestMoves[i] != null) System.out.println("#" + i + " " + currentBestMoves[i].toString());
+			if(currentBestMoves[i] != null) System.out.println(i + " " + currentBestMoves[i].toString());
 		}
-		System.out.println("#");*/
+		System.out.println();*/
 		return new MinimaxIterationResult(this.currentBestMoves[0], this.currentBestValue,
-			executorService.submit(new MinimaxTask(chessboard, firstPossibleMoves, iterativeDeepeningLimit + 1, executorService))); // Next iteration of iterative deepening
+				executorService.submit(new MinimaxTask(copyChessboard, firstPossibleMoves, iterativeDeepeningLimit + 1, executorService))); // Next iteration of iterative deepening
 	}
 	
 	
@@ -75,8 +77,7 @@ public class MinimaxTask implements Callable<MinimaxIterationResult>
 	private int firstMaxValue(Chessboard chessboard, int alpha, int beta)
 	{
 		depth++;
-		/*System.out.println("#\nDepth = " + depth + " - MAX");
-		System.out.println("#" + chessboard.toString() + "\n");*/
+		//System.out.println("\n" + this.toString() + " Limit = " + iterativeDeepeningLimit + " Depth = " + depth + " - MAX");
 		
 		// Here we do not compute all possible moves, we start from the partial list of moves that this task has been associated to
 		if (Thread.currentThread().isInterrupted() || MinimaxAI.terminalTest(chessboard) || (depth >= iterativeDeepeningLimit-1)) { depth--; return utility(chessboard); }
@@ -84,25 +85,29 @@ public class MinimaxTask implements Callable<MinimaxIterationResult>
 		
 		for (Move possibleMove : firstPossibleMoves)
 		{
+			//System.out.println("Studied move = " + possibleMove);
 			if(Thread.currentThread().isInterrupted()) break;
-			//System.out.println("#MAX - Studied move = " + possibleMove.toString() + " - calling MINVALUE");
 			chessboard.moveAChessman(possibleMove);
 			chessboard.nextTurn();
 			int min = minValue(chessboard, alpha, beta);
 			utilityValue = Math.max(utilityValue, min);
-			//System.out.println("#Cancel move: ");
 			chessboard.cancelLastMove();
+			chessboard.nextTurn();
 			
 			if(utilityValue > beta) { depth--; return utilityValue; }
 			if(utilityValue > alpha)
 			{
+				/*System.out.println("MAX - Changed best move at depth " + depth + " : " + possibleMove.toString());
+				System.out.println("Before = " + alpha + " and after = " + utilityValue);*/
 				alpha = utilityValue;
 				// Update the best move for this depth
 				currentBestMoves[depth] = possibleMove;
-				//System.out.println("#MAX - Changed best move at depth " + depth + " : " + possibleMove.toString());
 			} // else alpha's value does not change
+			/*else
+			{
+				System.out.println("Before = " + alpha + " and after = " + utilityValue + ", do not change");
+			}*/
 			
-			//System.out.println("#In MAX alpha-beta for depth " + depth + " and move " + possibleMove.toString() + " : alpha=" + alpha + " ; beta=" + beta);
 		}
 		depth--;
 		return utilityValue;
@@ -119,8 +124,8 @@ public class MinimaxTask implements Callable<MinimaxIterationResult>
 	private int maxValue(Chessboard chessboard, int alpha, int beta)
 	{
 		depth++;
-		/*System.out.println("#\nDepth = " + depth + " - MAX");
-		System.out.println("#" + chessboard.toString() + "\n");*/
+		/*System.out.println("\nDepth = " + depth + " - MAX");
+		System.out.println(chessboard.toString() + "\n");*/
 		
 		ArrayList<Move> allmoves = chessboard.genAllMoves(chessboard.getSideToPlay(), true); // Also updates the checkmate boolean, that is why we compute it here
 		if (Thread.currentThread().isInterrupted() || MinimaxAI.terminalTest(chessboard) || (depth >= iterativeDeepeningLimit-1)) { depth--; return utility(chessboard); }
@@ -128,25 +133,30 @@ public class MinimaxTask implements Callable<MinimaxIterationResult>
 		
 		for (Move possibleMove : allmoves)
 		{
+			//System.out.println("Studied move = " + possibleMove);
 			if(Thread.currentThread().isInterrupted()) break;
-			//System.out.println("#MAX - Studied move = " + possibleMove.toString() + " - calling MINVALUE");
 			chessboard.moveAChessman(possibleMove);
 			chessboard.nextTurn();
 			int min = minValue(chessboard, alpha, beta);
 			utilityValue = Math.max(utilityValue, min);
-			//System.out.println("#Cancel move: ");
 			chessboard.cancelLastMove();
+			chessboard.nextTurn();
 			
 			if(utilityValue > beta) { depth--; return utilityValue; }
 			if(utilityValue > alpha)
 			{
+				/*System.out.println("MAX - Changed best move at depth " + depth + " : " + possibleMove.toString());
+				System.out.println("Before = " + alpha + " and after = " + utilityValue);*/
 				alpha = utilityValue;
 				// Update the best move for this depth
 				currentBestMoves[depth] = possibleMove;
-				//System.out.println("#MAX - Changed best move at depth " + depth + " : " + possibleMove.toString());
 			} // else alpha's value does not change
+			/*else
+			{
+				System.out.println("Before = " + alpha + " and after = " + utilityValue + ", do not change");
+			}*/
 			
-			//System.out.println("#In MAX alpha-beta for depth " + depth + " and move " + possibleMove.toString() + " : alpha=" + alpha + " ; beta=" + beta);
+			//System.out.println("In MAX alpha-beta for depth " + depth + " and move " + possibleMove.toString() + " : alpha=" + alpha + " ; beta=" + beta);
 		}
 		depth--;
 		return utilityValue;
@@ -162,34 +172,37 @@ public class MinimaxTask implements Callable<MinimaxIterationResult>
 	private int minValue(Chessboard chessboard, int alpha, int beta)
 	{
 		depth++;
-		/*System.out.println("#\nDepth = " + depth + " - MIN");
-		System.out.println("#" + chessboard.toString() + "\n");*/
+		/*System.out.println("\nDepth = " + depth + " - MIN");
+		System.out.println(chessboard.toString() + "\n");*/
 		ArrayList<Move> allmoves = chessboard.genAllMoves(chessboard.getSideToPlay(), true); // Also updates the checkmate boolean, that is why we compute it here
 		if (Thread.currentThread().isInterrupted() || MinimaxAI.terminalTest(chessboard) || (depth >= iterativeDeepeningLimit-1)) { depth--; return utility(chessboard); }
 		int utilityValue = Integer.MAX_VALUE;
 		
 		for (Move possibleMove : allmoves)
 		{
+			//System.out.println("Studied move = " + possibleMove);
 			if(Thread.currentThread().isInterrupted()) break;
-			//System.out.println("#MIN - Studied move = " + possibleMove.toString() + " - calling MAXVALUE");
 			chessboard.moveAChessman(possibleMove);
 			chessboard.nextTurn();
 			int max = maxValue(chessboard, alpha, beta);
 			utilityValue = Math.min(utilityValue, max);
-			//System.out.println("#Cancel move: ");
 			chessboard.cancelLastMove();
+			chessboard.nextTurn();
 			
 			if(utilityValue < alpha) { depth--; return utilityValue; }
-			
 			if(utilityValue < beta)
 			{
+				/*System.out.println("MIN - Changed best move at depth " + depth + " : " + possibleMove.toString());
+				System.out.println("Before = " + beta + " and after = " + utilityValue);*/
 				beta = utilityValue;
 				// Update the best move for this depth
 				currentBestMoves[depth] = possibleMove;
-				//System.out.println("#MIN - Changed best move at depth " + depth + " : " + possibleMove.toString());
 			} // else beta's value does not change
+			/*else
+			{
+				System.out.println("Before = " + beta + " and after = " + utilityValue + ", do not change");
+			}*/
 			
-			//System.out.println("#In MIN alpha-beta for depth " + depth + " and move " + possibleMove.toString() + " : alpha=" + alpha + " ; beta=" + beta);
 		}
 		depth--;
 		return utilityValue;
@@ -199,8 +212,8 @@ public class MinimaxTask implements Callable<MinimaxIterationResult>
 	/**
 	 * Computes the utility of a chessboard, taking into account:
 	 * - the weights of the pieces on the board
+	 * - the checkmates on us and the opponent
 	 * - the possibilities of rooking
-	 * - [TO BE CONTINUED...]
 	 * @param chessboard
 	 * @return The utility of this board
 	 */
@@ -222,10 +235,18 @@ public class MinimaxTask implements Callable<MinimaxIterationResult>
 			utility += (pieceValue * sign);
 		}
 		
-		// Put a big bonus for checkmate on the opponent, and big penalty for checkmate on us
-		ArrayList<Move> opponentMoves = chessboard.genAllMoves(opponentColor, true);
-		if(opponentMoves.isEmpty()) utility += BONUS_CHECKMATE; // Checkmate in our favor!
-		if(chessboard.isCheckmate()) utility += MALUS_CHECKMATE; // Checkmate in favor of the opponent!
+		// Put a big malus if we are in checkmate...
+		ArrayList<Move> ourMoves = chessboard.genAllMoves(ourColor, true);
+		if(ourMoves.isEmpty())
+			utility += MALUS_CHECKMATE;
+		
+		// ... else put a big bonus if the opponent is in checkmate
+		else
+		{
+			ArrayList<Move> opponentMoves = chessboard.genAllMoves(opponentColor, true);
+			if(opponentMoves.isEmpty())
+				utility += BONUS_CHECKMATE;
+		}
 				
 		// Put a bonus if we can rook
 		if (ourColor == "white") {

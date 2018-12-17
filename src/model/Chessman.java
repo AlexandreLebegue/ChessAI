@@ -48,6 +48,16 @@ public class Chessman {
 	}
 	
 	
+	
+	
+	@Override
+	public String toString()
+	{
+		return this.name + " (" + this.color + ") - in position " + this.value;
+	}
+	
+	
+	
 	//Getters, setters...
 	
 	private void setValue(String name) {

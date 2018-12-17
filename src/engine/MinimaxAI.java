@@ -1,6 +1,7 @@
 package engine;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -15,11 +16,11 @@ import model.Move;
  * This class runs several tasks to dispatch the possible next movements between CPU cores,
  * so that they can each apply the Minimax algorithm on a subtree of the initial problem
  * @author Camille De Pinho on 2018/12/10
- * @version Last changes on 2018/12/13 at 01h04 by Camille De Pinho
+ * @version Last changes on 2018/12/17 at 11h44 by Camille De Pinho
  */
 public class MinimaxAI
 {
-	private static int TIMEOUT_MS = 900; // Un peu moins d'une seconde, pour laisser le temps de combiner les r�sultats des threads
+	private static int TIMEOUT_MS = 900; // Un peu moins d'une seconde, pour laisser le temps de combiner les resultats des threads
 	
 	
 	/**
@@ -33,7 +34,7 @@ public class MinimaxAI
 	{
 		long start = System.nanoTime();
 		//System.out.println("Starting Minimax...");
-		Move bestMove = runTasks(chessboard, start);//(new Chessboard(chessboard, ourColor));
+		Move bestMove = runTasks(chessboard, start);
 		/*long end = System.nanoTime();
 		long time = (end - start) / 1000000; // Nanoseconds to milliseconds
 		System.out.println("Finished Minimax in " + time + "ms");*/
@@ -71,41 +72,51 @@ public class MinimaxAI
 		// Execute the tasks with a 900ms timeout (little less than 1s in order to have enough time to retrieve the result)
 		for(List<Move> partition : partitions)
 		{
-			Future<MinimaxIterationResult> ft = executorService.submit(new MinimaxTask(new Chessboard(chessboard, chessboard.getSideToPlay()), partition, 3, executorService));
-			futureResults.add(ft);
+			if(!partition.isEmpty())
+			{
+				Future<MinimaxIterationResult> ft = executorService.submit(new MinimaxTask(new Chessboard(chessboard, chessboard.getSideToPlay()), partition, 3, executorService));
+				futureResults.add(ft);
+			}
 		}
 		
 		int bestValue = Integer.MIN_VALUE;
 		Move bestMove = null;
 		while((System.nanoTime() - startTime) / 1000000 < TIMEOUT_MS)
 		{
-			for(Future<MinimaxIterationResult> result : futureResults)
+			ArrayList<Future<MinimaxIterationResult>> nextResults = new ArrayList<>();
+			Iterator<Future<MinimaxIterationResult>> iterator = futureResults.iterator();
+			while(iterator.hasNext())
 			{
+				Future<MinimaxIterationResult> result = iterator.next();
 				try
 				{
-					//System.out.println("Current best = " + bestMove + " with " + bestValue + " - Next move is: " + result.get().getBestMove() + " with value " + result.get().getBestValue());
-					if(result.get().getBestValue() > bestValue)
-					{
-						bestValue = result.get().getBestValue();
-						bestMove = result.get().getBestMove();
-					}
+						MinimaxIterationResult minimaxResult = result.get();
+						Move move = minimaxResult.getBestMove();
+						Integer value = minimaxResult.getBestValue();
+						//System.out.println("Current best = " + bestMove + " with " + bestValue + " - Next move is: " + move.toString() + " with value " + value);
+						if(value > bestValue)
+						{
+							bestValue = value;
+							bestMove = move;
+						}
 						
-					result = result.get().getNextResult(); // Replace the current Future by the Future of the next iteration
-				}
-				catch(InterruptedException | ExecutionException e) { /* Nothing special to do */ }
+						nextResults.add(minimaxResult.getNextResult());
+						iterator.remove();
+					}
+					catch(InterruptedException | ExecutionException e) { /* Nothing special to do */ }				
 			}
+			futureResults.addAll(nextResults);
 		}
 		
 		executorService.shutdownNow(); // Close the pool and interrupt all running tasks
 				
-		//if (bestMove != null) System.out.println("BEST = " + bestMove.toString());
+		if (bestMove != null) System.out.println("BEST = " + bestMove.toString() + " with " + bestValue);
 		if(bestMove != null)
 			return bestMove;
 		else // a strange error might have occurred, so we return an arbitrary possible movement to avoid abandoning
 			return allmoves.get((int)Math.random() * (allmoves.size()) + 1);
 	}
 	
-	// TODO: Ajouter test des 3 coups r�p�t�s � la suite (et des 50 coups sans prise?)
 	/**
 	 * @param chessboard
 	 * @return true if there is a checkmate (end of the game), else false

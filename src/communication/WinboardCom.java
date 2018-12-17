@@ -25,35 +25,35 @@ public class WinboardCom {
 
 			if(command.contentEquals("new"))
 			{
-				chessEngine.stopNoise();
+				//chessEngine.stopNoise();
 				chessEngine.newGame();
-				chessEngine.stopNoise();
+				//chessEngine.stopNoise();
 			}
 
 			if(command.contentEquals("quit"))
 			{
-				chessEngine.stopNoise();
+				//chessEngine.stopNoise();
 				System.exit(0);
 			}
 
 			if(command.contentEquals("go"))
 			{
-				chessEngine.stopNoise();
+				//chessEngine.stopNoise();
 				chessEngine.play();
-				chessEngine.startNoise();
+				//chessEngine.startNoise();
 			}
 
 			if(command.startsWith("usermove"))
 			{
-				chessEngine.stopNoise();
+				//chessEngine.stopNoise();
 				chessEngine.updateBoard(command);
 				chessEngine.play();
-				chessEngine.startNoise();
+				//chessEngine.startNoise();
 			}
 			
 			if(command.contentEquals("stop"))
 			{
-				chessEngine.stopNoise();
+				//chessEngine.stopNoise();
 			}
 		}
 	}

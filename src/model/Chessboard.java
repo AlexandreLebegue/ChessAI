@@ -143,6 +143,7 @@ public class Chessboard {
 		
 		// Update boolean value indicating if there is a checkmate
 		if(allMoves.isEmpty()) checkmate = true;
+		else checkmate = false;
 		
 		/*System.out.println("Possible moves = ");
 		for(Move move : allMoves)
@@ -170,7 +171,7 @@ public class Chessboard {
 		else
 			cells[move.getEnd()] = chessmanCopy;
 		
-		//System.out.println("#"+chessmanCopy.getName() + " moved " + coords[move.getStart()] +" to " + coords[move.getEnd()]);
+		//System.out.println(chessmanCopy.getName() + " moved " + coords[move.getStart()] +" to " + coords[move.getEnd()]);
 		
 		
 		// We add the new configuration of cells in history
@@ -198,7 +199,7 @@ public class Chessboard {
 			if(move.getStart()>=8 && move.getStart()<= 15) { //if is at starting point
 				if(move.getEnd()>=24 && move.getEnd()<= 31) {
 					nbEnPassant = move.getEnd()-8; //one case before
-					//System.out.println("#EnPassant is possible in "+ coords[nbEnPassant]);
+					//System.out.println("EnPassant is possible in "+ coords[nbEnPassant]);
 				}					
 			} 
 			break;
@@ -207,7 +208,7 @@ public class Chessboard {
 			if(move.getStart()>=48 && move.getStart()<= 55) { //if is at starting point
 				if(move.getEnd()>=32 && move.getEnd()<= 39) {
 					nbEnPassant = move.getEnd()+8; //one case before
-					//System.out.println("#EnPassant is possible in "+ coords[nbEnPassant]);
+					//System.out.println("EnPassant is possible in "+ coords[nbEnPassant]);
 				}					
 			} 
 			break;
@@ -271,11 +272,12 @@ public class Chessboard {
 	public void cancelLastMove() {
 		cells = history.get(history.size()-2).clone();
 		history.remove(history.size()-1);
+		
 	}
 	
 	public void displayHistoryMoves() {
 		
-		//System.out.println("#Affichage de l'historique");
+		//System.out.println("Affichage de l'historique");
 		
 		for(Chessman[] historyCells : history) {
 			int j = 1;
